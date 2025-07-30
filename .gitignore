@@ -1,3 +1,4 @@
+/.vscode/settings.json
 *.iml
 .gradle
 /local.properties
@@ -9,4 +10,4 @@
 /.idea/assetWizardSettings.xml
 .DS_Store
 /build
-.vscode/settings.json
+
