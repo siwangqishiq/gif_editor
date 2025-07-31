@@ -9,10 +9,12 @@
 
 class Application{
 public:
-    const std::string TAG = "SandBoxApp";
+    const std::string TAG = "GifEditor";
 
     const static int screenWidth = 600;
     const static int screenHeight = 800;
+    // const static int screenWidth = 800;
+    // const static int screenHeight = 1280;
 
     //init application
     void init();

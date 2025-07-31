@@ -57,14 +57,18 @@ namespace purple{
     }
 
     void ShapeBatch::end(){
-        flush();
+        ShapeBatch::end(paint_);
+    }
+
+    void ShapeBatch::end(Paint paint){
+        flush(paint);
 
         isDrawing_ = false;
         index_ = 0;
         vertexCount_ = 0;
     }
 
-    void ShapeBatch::flush(){
+    void ShapeBatch::flush(Paint paint){
         //do real opengl render
         executeGlCommands();
     }
@@ -166,16 +170,15 @@ namespace purple{
             return;
         }
 
+        Paint paint;
+
         int addedSize = VERTEX_COUNT_PER_PERMITIVE * attrCountPerVertex_;
         if(index_ + addedSize >= vertexBuffer_.size()){
-            end();
+            end(paint);
             begin();
         }
 
-        Paint paint;
-
         float depth = renderEngine_->getAndChangeDepthValue();//图元深度
-
         auto type = ShapeType::ShapeLinearGradientRect;
         //v1
         putVertexAttributeWithColor(0 , type, rect.left , rect.getBottom() , 
@@ -210,7 +213,7 @@ namespace purple{
         int addedSize = VERTEX_COUNT_PER_PERMITIVE * attrCountPerVertex_;
         if(index_ + addedSize >= vertexBuffer_.size()){
             // std::cout << "occur error" << std::endl;
-            end();
+            end(paint);
             begin();
         }
 
@@ -338,7 +341,11 @@ namespace purple{
     }
 
     void SpriteBatch::end(){
-        flush();
+        SpriteBatch::end(paint_);
+    }
+
+    void SpriteBatch::end(Paint paint){
+        flush(paint);
 
         isDrawing_ = false;
         index_ = 0;
@@ -352,7 +359,8 @@ namespace purple{
         }
     }
 
-    void SpriteBatch::flush(){
+    void SpriteBatch::flush(Paint paint){
+        paint_ = paint;
         executeGlCommands();
     }
 
@@ -372,6 +380,7 @@ namespace purple{
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D , currentTextureId_);
         shader_.setUniformInt("uTex",0);
+        shader_.setUniformBool("uTexFlip",paint_.texFlip);
 
         glBindVertexArray(vao_);
         glDrawArrays(GL_TRIANGLES , 0 , vertexCount_);
@@ -407,7 +416,7 @@ namespace purple{
 
         // Log::i("SpriteBatch" , "current --> render  texture %d" , currentTextureId_);
         if(texId != currentTextureId_){
-            end();
+            end(paint_);
             currentTextureId_ = texId;
             // Log::i("SpriteBatch" , "switch texture %d" , currentTextureId_);
             begin();
@@ -415,7 +424,7 @@ namespace purple{
 
         int addedSize = VERTEX_COUNT_PER_PERMITIVE * attrCountPerVertex_;
         if(index_ + addedSize >= vertexBuffer_.size()){
-            end();
+            end(paint_);
             begin();
         }
         

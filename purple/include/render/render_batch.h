@@ -17,6 +17,8 @@ namespace purple{
 
         virtual void begin() = 0;
 
+        virtual void end(Paint paint) = 0;
+
         virtual void end() = 0;
 
         virtual void dispose() = 0;
@@ -26,6 +28,8 @@ namespace purple{
         std::shared_ptr<VRamManager> getVRamManager(){
             return vramManager_;
         }
+
+        Paint paint_;
 
         // ~Batch();
     protected:
@@ -61,9 +65,11 @@ namespace purple{
 
         virtual void end();
 
+        virtual void end(Paint paint);
+
         virtual void dispose();
 
-        void flush();
+        void flush(Paint paint);
 
         void executeGlCommands();
 
@@ -126,11 +132,13 @@ namespace purple{
 
         virtual void end();
 
+        virtual void end(Paint paint);
+
         virtual void dispose();
 
         void init();
 
-        void flush();
+        void flush(Paint paint);
 
         void renderImage(TextureImage &image , Rect &srcRect , Rect &dstRect);
 

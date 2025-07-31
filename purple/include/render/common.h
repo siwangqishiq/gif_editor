@@ -158,6 +158,9 @@ namespace purple{
         //阴影偏移
         float shadowDx = 0.0f;
         float shadowDy = 0.0f;
+
+        //
+        bool texFlip = false;
     };
 
     inline bool isPointInRect(Rect &rect,float x , float y){

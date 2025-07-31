@@ -99,6 +99,8 @@ namespace purple{
             return;
         }
         
+
+        calculateDpSize();
         renderEngine_ = std::make_shared<RenderEngine>();
         renderEngine_->init(params);
         renderEngine_->onScreenResize();
