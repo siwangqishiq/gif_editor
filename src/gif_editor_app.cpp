@@ -8,8 +8,8 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
-const char *FILE_PATH = "../assets/sharongzi.gif";
-// const char *FILE_PATH = "../assets/gakki.gif";
+// const char *FILE_PATH = "../assets/sharongzi.gif";
+const char *FILE_PATH = "../assets/gakki.gif";
 // const char *FILE_PATH = "../assets/yaoren.mp4";
 
 const char *TAG = "gif_editor";
@@ -77,6 +77,7 @@ int GifEditorApp::decodeGifFile(const char* filepath){
     frame = av_frame_alloc();
 
     unsigned int frameCount = 0;
+    bool isBreak = false;
     while(av_read_frame(formatContext, packet) >= 0){
         if (packet->stream_index == videoSteamIdx) {
             int ret = avcodec_send_packet(codecContext, packet);
@@ -111,8 +112,13 @@ int GifEditorApp::decodeGifFile(const char* filepath){
                 frameCount++;
 
                 if(frameCount >= MAX_FRAME_COUNT){
+                    isBreak = true;
                     break;
                 }
+            }//end while
+
+            if(isBreak){
+                break;
             }
         }//end if
 
