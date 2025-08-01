@@ -26,17 +26,22 @@ void MainView::tick(){
     }
 
     auto image = appContext->frameList[curFrameIndex]->tex;
-    auto batch = purple::Engine::getRenderEngine()->getSpriteBatch();
+    auto srcRect = image->getRect();
+    purple::Rect dstRect = FindCenterModeRect(srcRect, viewRect, false);
 
+    // purple::Engine::getRenderEngine()->beginScissor(dstRect.left,dstRect.getBottom(),
+    //     dstRect.width / 2, dstRect.height / 2);
+    
+    auto batch = purple::Engine::getRenderEngine()->getSpriteBatch();
+    
     purple::Paint framePaint;
     framePaint.texFlip = true;
-
+    
     batch->begin();
-    auto srcRect = image->getRect();
-
-    purple::Rect dstRect = FindCenterModeRect(srcRect, viewRect, false);
     batch->renderImage(image,srcRect, dstRect);
     batch->end(framePaint);
+
+    // purple::Engine::getRenderEngine()->endScissor();
 
     if(state == Play){
         trySkipNextFrame();

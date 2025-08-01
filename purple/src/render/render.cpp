@@ -869,5 +869,14 @@ namespace purple{
         Log::i(TAG , "load font file %s failed code: %d" , fontPath.c_str() , ret);
         return false;
     }
+
+    void RenderEngine::beginScissor(int x,int y, int width, int height){
+        glEnable(GL_SCISSOR_TEST);
+        glScissor(x, y , width , height);
+    }
+
+    void RenderEngine::endScissor(){
+        glDisable(GL_SCISSOR_TEST);
+    }
 }
 

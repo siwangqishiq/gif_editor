@@ -232,6 +232,11 @@ namespace purple{
         //绘制圆形阴影
         void renderCircleShadow(float cx , float cy , float radius, Paint &paint);
 
+        //开启 简单矩形裁剪
+        void beginScissor(int x,int y, int width, int height);
+        //关闭裁剪
+        void endScissor();
+
         std::shared_ptr<VRamManager> vramManager_;
     private:
         std::vector<std::shared_ptr<RenderCommand>> renderCommandList_;

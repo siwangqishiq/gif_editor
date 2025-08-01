@@ -17,10 +17,8 @@ class InputAction;
 
 class GifEditorApp : public purple::IApp{
 public:
-
     // image data
     std::vector<std::unique_ptr<ImageFrameData>> frameList;
-
 
     virtual void onInit() override;
     virtual void onTick() override;
@@ -32,7 +30,7 @@ public:
 
     void registerInputWidget(InputAction *widget);
     void unRegisterInputWidget(InputAction *widget);
-
+    
     long long getLastFrameDeltaTime();
 private:
     MainView mMainView;
