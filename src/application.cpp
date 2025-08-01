@@ -20,7 +20,15 @@ void Application::onCreate(){
         fps = 0;
     } , 1000L);
     
-    appInstanceList.push_back(std::make_shared<GifEditorApp>());
+    appInstanceList.push_back(std::make_shared<GifEditorApp>(this->params));
+}
+
+void Application::parseParams(int argc,char **argv){
+    if(argc > 0){
+        for(int i = 0 ; i < argc ;i++){
+            params.emplace_back(argv[i]);
+        }//end for i
+    }
 }
 
 void Application::init(){

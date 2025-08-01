@@ -17,6 +17,8 @@ class InputAction;
 
 class GifEditorApp : public purple::IApp{
 public:
+    GifEditorApp(std::vector<std::string> params);
+
     // image data
     std::vector<std::unique_ptr<ImageFrameData>> frameList;
 
@@ -32,6 +34,8 @@ public:
     void unRegisterInputWidget(InputAction *widget);
 
     long long getLastFrameDeltaTime();
+
+    std::string filePath;
 private:
     MainView mMainView;
     TimeLine mTimeline;

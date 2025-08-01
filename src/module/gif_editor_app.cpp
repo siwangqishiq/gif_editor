@@ -12,18 +12,26 @@ extern "C" {
 }
 
 // const char *FILE_PATH = "../assets/sharongzi.gif";
-// const char *FILE_PATH = "../assets/gakki.gif";
+const char *FILE_PATH = "../assets/gakki.gif";
 // const char *FILE_PATH = "../assets/nezha.gif";
-const char *FILE_PATH = "../assets/loading.gif";
+// const char *FILE_PATH = "../assets/loading.gif";
 // const char *FILE_PATH = "../assets/test.gif";
 // const char *FILE_PATH = "../assets/yaoren.mp4";
 
 const char *TAG = "gif_editor";
 const std::string GIF_EDITOR_INPUT = "gif_editor_input";
 
+GifEditorApp::GifEditorApp(std::vector<std::string> params){
+    if(params.size() >= 2){
+        filePath = params[1];
+    }else{
+        filePath = FILE_PATH;
+    }//end if
+}
+
 void GifEditorApp::onInit(){
-    purple::Log::i("GifEditorApp","onInit");
-    decodeGifFile(FILE_PATH);
+    purple::Log::i(TAG,"onInit");
+    decodeGifFile(filePath.c_str());
 
     mMainView.init(this);
     mTimeline.init(this);

@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <vector>
 
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
@@ -36,7 +37,9 @@ public:
     void showExtensionInfo();
     
     //run this app
-    int execute(){
+    int execute(int argc, char **argv){
+        parseParams(argc, argv);
+        
         init();
         runLoop();
         dispose();
@@ -48,6 +51,10 @@ public:
     bool onInputEvent(purple::InputEvent &event);
 
     static int fps;
+
+    std::vector<std::string> params;
+
+    void parseParams(int argc,char **argv);
 private:
     GLFWwindow* window = nullptr;
     
