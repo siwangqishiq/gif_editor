@@ -1,7 +1,7 @@
 #include "application.h"
 #include "purple.h"
 #include "input/input_manager.h"
-#include "gif_editor_app.h"
+#include "module/gif_editor_app.h"
 
 
 #ifndef __ANDROID__

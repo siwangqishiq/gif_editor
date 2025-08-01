@@ -10,12 +10,16 @@ struct ImageFrameData{
     float pts;
 };
 
-const unsigned int MAX_FRAME_COUNT = 128;
+const unsigned int MAX_FRAME_COUNT = 128; //读取的最大帧图像数量
+
+class InputAction;
 
 class GifEditorApp : public purple::IApp{
 public:
+
+    // image data
     std::vector<std::unique_ptr<ImageFrameData>> frameList;
-    uint32_t curFrameIndex = 0;
+
 
     virtual void onInit() override;
     virtual void onTick() override;
@@ -25,12 +29,19 @@ public:
 
     void onGetFrameImage(uint8_t *data, int w, int h , double pts);
 
-    purple::Rect findCenterModeRect(purple::Rect srcRect,purple::Rect viewRect,bool isCrop);
+    void registerInputWidget(InputAction *widget);
+    void unRegisterInputWidget(InputAction *widget);
 
     long long getLastFrameDeltaTime();
 private:
     MainView mMainView;
     long long timeMs = -1;
 
+    InputAction *catchedInputWidget = nullptr;
+
+    std::vector<InputAction *> inputWidgets;
+
     int decodeGifFile(const char* filepath); //decode gif file 
+
+    void handleInputAction(purple::InputEvent &e);
 };

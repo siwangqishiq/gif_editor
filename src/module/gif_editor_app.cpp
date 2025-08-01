@@ -1,5 +1,8 @@
 #include "gif_editor_app.h"
+#include "app_util.h"
 #include "utils.h"
+#include "input/input_manager.h"
+#include "input_action.h"
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -10,15 +13,26 @@ extern "C" {
 
 // const char *FILE_PATH = "../assets/sharongzi.gif";
 const char *FILE_PATH = "../assets/gakki.gif";
+// const char *FILE_PATH = "../assets/test.gif";
 // const char *FILE_PATH = "../assets/yaoren.mp4";
 
 const char *TAG = "gif_editor";
+const std::string GIF_EDITOR_INPUT = "gif_editor_input";
 
 void GifEditorApp::onInit(){
     purple::Log::i("GifEditorApp","onInit");
     decodeGifFile(FILE_PATH);
 
     mMainView.init(this);
+
+    purple::InputManager::getInstance()->removeEventListener(GIF_EDITOR_INPUT);
+    purple::InputManager::getInstance()->addEventListener(GIF_EDITOR_INPUT,[this](purple::InputEvent e){
+        // purple::Log::i("input_action" , "%d, (%f, %f)", e.action, e.x, e.y);
+        handleInputAction(e);
+        return true;
+    });
+
+    registerInputWidget(static_cast<InputAction *>(&mMainView)); 
 }
 
 int GifEditorApp::decodeGifFile(const char* filepath){
@@ -102,10 +116,14 @@ int GifEditorApp::decodeGifFile(const char* filepath){
                 uint32_t height = frame->height;
                 int src_stride = frame->linesize[0];
                 
-                uint8_t* dst = new uint8_t[width * height * 4];
+                const unsigned int colorSize = 4;
+                uint8_t* dst = new uint8_t[width * height * colorSize];
                 for (uint32_t y = 0; y < height; y++) {
-                    memcpy(dst + y * width * 4, frame->data[0] + y * src_stride, width * 4);
+                    memcpy(dst + y * width * colorSize, 
+                            frame->data[0] + y * src_stride, 
+                            width * colorSize);
                 }//end for y
+
                 onGetFrameImage(dst, frame->width, frame->height, ptsTime);
                 delete[] dst;
 
@@ -144,97 +162,42 @@ void GifEditorApp::onGetFrameImage(uint8_t *data, int w, int h , double pts){
     this->frameList.push_back(std::move(frameData));
 }
 
+void GifEditorApp::registerInputWidget(InputAction *widget){
+    unRegisterInputWidget(widget);
+    inputWidgets.emplace_back(widget);
+}
+
+void GifEditorApp::unRegisterInputWidget(InputAction *widget){
+    for(auto it = inputWidgets.begin() ; it != inputWidgets.end(); it++){
+        if(*it == widget){
+            inputWidgets.erase(it);
+            break;
+        }
+    }//end for each
+}
+
+void GifEditorApp::handleInputAction(purple::InputEvent &e){
+    if(catchedInputWidget != nullptr){
+        catchedInputWidget->onTouchEvent(e);
+        if(e.action == purple::EVENT_ACTION_END || e.action == purple::EVENT_ACTION_CANCEL){
+            catchedInputWidget = nullptr;
+            return;
+        }
+    }
+
+    for(auto &widget : inputWidgets){
+        if(widget->onTouchEvent(e)){
+            catchedInputWidget = widget;
+            break;
+        }
+    }//end for each;
+}
+
 long long GifEditorApp::getLastFrameDeltaTime(){
     if(timeMs < 0){
         return 0;
     }
     return purple::currentTimeMillis() - timeMs;
-}
-
-purple::Rect GifEditorApp::findCenterModeRect(purple::Rect srcRect,
-    purple::Rect viewRect,bool isCrop){
-    purple::Rect dstRect;
-    dstRect.left = viewRect.left;
-    dstRect.top = viewRect.top;
-    dstRect.width = srcRect.width;
-    dstRect.height = srcRect.height;
-
-    auto dstCenter = dstRect.center();
-    auto viewCenter = viewRect.center();
-    float tranX = dstCenter.x - viewCenter.x;
-    float tranY = dstCenter.y - viewCenter.y;
-
-    dstRect.left -= tranX;
-    dstRect.top -= tranY;
-    
-    const float scaleWidth = viewRect.width / dstRect.width;
-    purple::Point pw{dstRect.left , dstRect.top};
-    purple::ScaleWithPoint(pw , scaleWidth , viewCenter);
-    int wLeft = pw.x;
-    int wTop = pw.y;
-
-    const float scaleHeight = viewRect.height / dstRect.height;
-    purple::Point ph{dstRect.left , dstRect.top};
-    purple::ScaleWithPoint(ph , scaleHeight , viewCenter);
-    int hLeft = ph.x;
-    int hTop = ph.y;
-    
-    float scale = 1.0f;
-
-    const int viewLeft = viewRect.left;
-    const int viewTop = viewRect.top;
-
-    if(isCrop){
-        dstRect= viewRect;
-        // std::cout << "scale Width " << scaleWidth  
-        //     << "  scale Height: " << scaleHeight << std::endl;
-        // std::cout << "Width wleft " << wLeft << " wTop: " << wTop  
-        //     << " Height hLeft: " << hLeft << "  hTop: " << hTop << std::endl;
-
-        if(wLeft >= viewLeft && wTop < viewTop){
-            scale = scaleHeight;
-        }else if(hLeft > viewRect.left && hTop >= viewTop) {
-            scale = scaleWidth;
-        }
-        // std::cout << "use scale = " << scale << std::endl;
-
-        purple::Rect copySrcRect;
-        copySrcRect.width = scale * srcRect.width;
-        copySrcRect.height = scale * srcRect.height;
-        copySrcRect.left = 0.0f;
-        copySrcRect.top = copySrcRect.height;
-
-        float deltaW = (copySrcRect.width - dstRect.width) / 2.0f;
-        float deltaH = (copySrcRect.height - dstRect.height) / 2.0f;
-        copySrcRect.left = copySrcRect.left + deltaW;
-        copySrcRect.top = copySrcRect.top - deltaH;
-        copySrcRect.width = copySrcRect.width - 2.0f * deltaW;
-        copySrcRect.height = copySrcRect.height - 2.0f * deltaH;
-
-        const float inverseScale = 1.0f / scale;
-        srcRect.left = copySrcRect.left * inverseScale;
-        srcRect.top = copySrcRect.top * inverseScale;
-        srcRect.width = copySrcRect.width * inverseScale;
-        srcRect.height = copySrcRect.height * inverseScale;
-    }else{
-        if(wLeft >= viewLeft && wTop < viewTop){
-            scale = scaleWidth;
-            dstRect.left = wLeft;
-            dstRect.top = wTop;
-        }else if(hLeft > viewRect.left && hTop >= viewTop){
-            scale = scaleHeight;
-            dstRect.left = hLeft;
-            dstRect.top = hTop;
-        }else{
-            // std::cout << "set scale 0" << std::endl;
-            scale = 0.0f;
-        }
-
-        dstRect.width = dstRect.width * scale;
-        dstRect.height = dstRect.height * scale;
-    }
-
-    return dstRect;
 }
 
 void GifEditorApp::onResize(int w , int h){
@@ -247,6 +210,7 @@ void GifEditorApp::onTick(){
 }
 
 void GifEditorApp::onDispose(){
+    purple::InputManager::getInstance()->removeEventListener(GIF_EDITOR_INPUT);
     purple::Log::i("GifEditorApp","TestTextUi::onDispose");
 }
 

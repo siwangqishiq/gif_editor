@@ -1,0 +1,95 @@
+#include "gif_editor_app.h"
+#include "main_view.h"
+#include "app_util.h"
+#include "purple.h"
+
+MainView::MainView(){
+}
+
+void MainView::init(GifEditorApp *appContext_){
+    appContext = appContext_;
+    resetViewRect();
+
+    this->setOnClickListener([this](){
+        purple::Log::i("MainView", "on clicked");
+        if(state == Play){
+            updateNewState(Pause);
+        }else if(state == Pause){
+            updateNewState(Play);
+        }//end if
+    });
+}
+
+purple::Rect MainView::getHitRect(){
+    return viewRect; 
+}
+
+void MainView::render(){
+    if(appContext->frameList.empty()){
+        return;
+    }
+
+    auto image = appContext->frameList[curFrameIndex]->tex;
+    auto batch = purple::Engine::getRenderEngine()->getSpriteBatch();
+
+    purple::Paint framePaint;
+    framePaint.texFlip = true;
+
+    batch->begin();
+    auto srcRect = image->getRect();
+
+    purple::Rect dstRect = FindCenterModeRect(srcRect, viewRect, false);
+    batch->renderImage(image,srcRect, dstRect);
+    batch->end(framePaint);
+
+    if(state == Play){
+        trySkipNextFrame();
+    }
+}
+
+void MainView::trySkipNextFrame(){
+    auto deltaTime = appContext->getLastFrameDeltaTime();
+
+    if(curFrameIndex + 1 >= appContext->frameList.size()){
+        curFramePlayTime += deltaTime;
+        if(curFramePlayTime > 200){
+            curFrameIndex = 0;
+            curFramePlayTime = 0;
+        }
+    }else{
+        const float curPtsF = appContext->frameList[curFrameIndex]->pts;
+        long long curPts = curPtsF * 1000;
+
+        const float nextPtsF = appContext->frameList[curFrameIndex + 1]->pts;
+        long long nextPts = nextPtsF * 1000;
+        
+        curFramePlayTime += deltaTime;
+        if(curFramePlayTime > nextPts - curPts){
+            curFrameIndex = curFrameIndex + 1;
+            curFramePlayTime = 0;
+        }
+    }
+}
+
+void MainView::onResize(){
+    resetViewRect();
+}
+
+void MainView::updateNewState(MainViewState newState){
+    if(newState != state){
+        state = newState;
+    }
+}
+
+void MainView::resetViewRect(){
+    viewRect.left = 0.0f;
+    viewRect.top = purple::Engine::ScreenHeight;
+    viewRect.width = purple::Engine::ScreenWidth;
+    viewRect.height = purple::Engine::ScreenHeight / 2.0f;
+    
+    purple::Log::w("MainView" , "size %f, %f", viewRect.width , viewRect.height);
+}
+
+MainView::~MainView(){
+    purple::Log::w("MainView", "~MainView");
+}
