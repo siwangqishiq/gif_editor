@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <iostream>
 #include <fstream>
 #include <codecvt>
@@ -11,15 +10,35 @@
 #include <memory>
 #include <vector>
 
+#ifdef _WIN32
+    #include <windows.h>
+#endif
+
 namespace purple{
-    inline std::wstring ToWideString(const std::string& input){
+    inline std::wstring ToWideString(const std::string& input) {
+    #ifdef _WIN32
+        if (input.empty()) return {};
+        int size_needed = MultiByteToWideChar(CP_UTF8, 0, input.data(), (int)input.size(), NULL, 0);
+        std::wstring result(size_needed, 0);
+        MultiByteToWideChar(CP_UTF8, 0, input.data(), (int)input.size(), &result[0], size_needed);
+        return result;
+    #else
         std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
         return converter.from_bytes(input);
+    #endif
     }
 
     inline std::string ToByteString(const std::wstring& input){
+    #ifdef _WIN32
+        if (input.empty()) return {};
+        int size_needed = WideCharToMultiByte(CP_UTF8, 0, input.data(), (int)input.size(), NULL, 0, NULL, NULL);
+        std::string result(size_needed, 0);
+        WideCharToMultiByte(CP_UTF8, 0, input.data(), (int)input.size(), &result[0], size_needed, NULL, NULL);
+        return result;
+    #else
         std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
         return converter.to_bytes(input);
+    #endif
     }
 
     inline void WriteStringToFile(const char *path , std::wstring content){

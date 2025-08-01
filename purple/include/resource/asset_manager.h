@@ -14,6 +14,7 @@
 #include <streambuf>
 #include <codecvt>
 #include <vector>
+#include "json.h"
 
 namespace purple{
     const int TEXTURE_FILE_CHANNEL_UNKNOW = -1;
@@ -59,7 +60,7 @@ namespace purple{
         virtual unsigned char* readFileAsBinRaw(std::string path , int &length);
 
         inline std::string readAssetTextFileAsString(std::string path){
-            return toByteString(readAssetTextFile(path));
+            return ToByteString(readAssetTextFile(path));
         }
 
         AssetManager(){
@@ -76,21 +77,11 @@ namespace purple{
         }
 
     protected:
-        inline std::wstring toWideString(const std::string& input){
-            std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-            return converter.from_bytes(input);
-        }
-
-        inline std::string toByteString(const std::wstring& input){
-            std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-            return converter.to_bytes(input);
-        }
-
         inline std::wstring readFileAsWstring(const char *path){
             std::ifstream file(path);
             std::string str((std::istreambuf_iterator<char>(file)),
                         std::istreambuf_iterator<char>());
-            return toWideString(str);
+            return ToWideString(str);
         }
 
     public:
