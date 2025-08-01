@@ -12,7 +12,9 @@ extern "C" {
 }
 
 // const char *FILE_PATH = "../assets/sharongzi.gif";
-const char *FILE_PATH = "../assets/gakki.gif";
+// const char *FILE_PATH = "../assets/gakki.gif";
+// const char *FILE_PATH = "../assets/nezha.gif";
+const char *FILE_PATH = "../assets/loading.gif";
 // const char *FILE_PATH = "../assets/test.gif";
 // const char *FILE_PATH = "../assets/yaoren.mp4";
 
@@ -38,6 +40,11 @@ void GifEditorApp::onInit(){
 }
 
 int GifEditorApp::decodeGifFile(const char* filepath){
+    if(hasDecodeGifImage){
+        return 0;
+    }
+
+
     AVFormatContext *formatContext = nullptr;
     AVCodecContext *codecContext = nullptr;
 
@@ -149,6 +156,8 @@ int GifEditorApp::decodeGifFile(const char* filepath){
     av_packet_free(&packet);
     avcodec_free_context(&codecContext);
     avformat_close_input(&formatContext);
+
+    hasDecodeGifImage = true;
 
     return 0;
 }

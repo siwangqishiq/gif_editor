@@ -9,6 +9,7 @@ MainView::MainView(){
 void MainView::init(GifEditorApp *appContext_){
     appContext = appContext_;
     resetViewRect();
+    updateNewState(Pause);
 
     this->setOnClickListener([this](){
         purple::Log::i("MainView", "on clicked");
@@ -33,7 +34,7 @@ void MainView::tick(){
     //     dstRect.width / 2, dstRect.height / 2);
     
     auto batch = purple::Engine::getRenderEngine()->getSpriteBatch();
-    
+
     purple::Paint framePaint;
     framePaint.texFlip = true;
     
@@ -53,7 +54,7 @@ void MainView::trySkipNextFrame(){
 
     if(curFrameIndex + 1 >= appContext->frameList.size()){
         curFramePlayTime += deltaTime;
-        if(curFramePlayTime > 200){
+        if(curFramePlayTime > 25){
             curFrameIndex = 0;
             curFramePlayTime = 0;
         }

@@ -12,6 +12,10 @@ public:
     virtual void init(GifEditorApp *appContext_) override;
 
     void tick();
-    
+
     virtual ~TimeLine();
+
+private:
+    void prepare();
+    int offset = 0;
 };

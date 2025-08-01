@@ -11,7 +11,7 @@ struct ImageFrameData{
     float pts;
 };
 
-const unsigned int MAX_FRAME_COUNT = 128; //读取的最大帧图像数量
+const unsigned int MAX_FRAME_COUNT = 128 * 8; //读取的最大帧图像数量
 
 class InputAction;
 
@@ -30,12 +30,14 @@ public:
 
     void registerInputWidget(InputAction *widget);
     void unRegisterInputWidget(InputAction *widget);
-    
+
     long long getLastFrameDeltaTime();
 private:
     MainView mMainView;
     TimeLine mTimeline;
     long long timeMs = -1;
+
+    bool hasDecodeGifImage = false;
 
     InputAction *catchedInputWidget = nullptr;
 
