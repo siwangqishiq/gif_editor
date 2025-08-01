@@ -2,6 +2,7 @@
 
 #include "purple.h"
 #include "input_action.h"
+#include "base_widget.h"
 
 class GifEditorApp;
 
@@ -10,7 +11,7 @@ enum MainViewState{
     Play = 1,
 };
 
-class MainView : public InputAction{
+class MainView : public BaseWidget{
 public:
     MainViewState state = Pause;
     uint32_t curFrameIndex = 0;
@@ -18,22 +19,16 @@ public:
 
     MainView();
 
-    void init(GifEditorApp *appContext_);
+    virtual void init(GifEditorApp *appContext_) override;
 
-    void render();
+    void tick();
 
     void onResize();
 
     void updateNewState(MainViewState newState);
 
-    virtual purple::Rect getHitRect() override;
-
-    ~MainView();
+    virtual ~MainView();
 private:
-    GifEditorApp *appContext;
-
-    purple::Rect viewRect;
-
     void resetViewRect();
 
     void trySkipNextFrame();

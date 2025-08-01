@@ -24,6 +24,7 @@ void GifEditorApp::onInit(){
     decodeGifFile(FILE_PATH);
 
     mMainView.init(this);
+    mTimeline.init(this);
 
     purple::InputManager::getInstance()->removeEventListener(GIF_EDITOR_INPUT);
     purple::InputManager::getInstance()->addEventListener(GIF_EDITOR_INPUT,[this](purple::InputEvent e){
@@ -33,6 +34,7 @@ void GifEditorApp::onInit(){
     });
 
     registerInputWidget(static_cast<InputAction *>(&mMainView)); 
+    registerInputWidget(static_cast<InputAction *>(&mTimeline)); 
 }
 
 int GifEditorApp::decodeGifFile(const char* filepath){
@@ -205,7 +207,9 @@ void GifEditorApp::onResize(int w , int h){
 }
 
 void GifEditorApp::onTick(){
-    mMainView.render();
+    mMainView.tick();
+    mTimeline.tick();
+
     timeMs = purple::currentTimeMillis();
 }
 

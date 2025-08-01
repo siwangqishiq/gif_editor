@@ -20,11 +20,7 @@ void MainView::init(GifEditorApp *appContext_){
     });
 }
 
-purple::Rect MainView::getHitRect(){
-    return viewRect; 
-}
-
-void MainView::render(){
+void MainView::tick(){
     if(appContext->frameList.empty()){
         return;
     }

@@ -3,8 +3,6 @@
 #include "purple.h"
 #include "input/input_common.h"
 
-
-
 class InputAction{
 public:
     virtual purple::Rect getHitRect() = 0;

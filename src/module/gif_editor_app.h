@@ -4,6 +4,7 @@
 #include "purple.h"
 #include <vector>
 #include "main_view.h"
+#include "timeline.h"
 
 struct ImageFrameData{
     std::shared_ptr<purple::TextureImage> tex;
@@ -35,6 +36,7 @@ public:
     long long getLastFrameDeltaTime();
 private:
     MainView mMainView;
+    TimeLine mTimeline;
     long long timeMs = -1;
 
     InputAction *catchedInputWidget = nullptr;
