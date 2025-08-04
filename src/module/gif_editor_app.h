@@ -36,9 +36,10 @@ public:
     long long getLastFrameDeltaTime();
 
     std::string filePath;
-private:
+
     MainView mMainView;
     TimeLine mTimeline;
+private:
     long long timeMs = -1;
 
     bool hasDecodeGifImage = false;

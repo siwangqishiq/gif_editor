@@ -14,7 +14,6 @@ enum MainViewState{
 class MainView : public BaseWidget{
 public:
     MainViewState state = Pause;
-    uint32_t curFrameIndex = 0;
     long long curFramePlayTime = 0;
 
     MainView();
@@ -28,7 +27,19 @@ public:
     void updateNewState(MainViewState newState);
 
     virtual ~MainView();
+
+    void updateCurrentFrame(uint32_t newFrame);
+
+    uint32_t getCurrentFrame(){
+        return curFrameIndex;
+    }
+
+    void onClickPlayButton();
 private:
+    uint32_t curFrameIndex = 0;
+
+    bool isLoopPlay = false;
+
     void resetViewRect();
 
     void trySkipNextFrame();

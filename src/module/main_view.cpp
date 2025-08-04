@@ -13,12 +13,21 @@ void MainView::init(GifEditorApp *appContext_){
 
     this->setOnClickListener([this](){
         purple::Log::i("MainView", "on clicked");
-        if(state == Play){
-            updateNewState(Pause);
-        }else if(state == Pause){
-            updateNewState(Play);
-        }//end if
+        onClickPlayButton();
     });
+}
+
+void MainView::onClickPlayButton(){
+    if(state == Play){
+        updateNewState(Pause);
+    }else if(state == Pause){
+        if(curFrameIndex + 1 >= appContext->frameList.size()){
+            curFrameIndex = 0;
+            curFramePlayTime = 0;
+        }
+        
+        updateNewState(Play);
+    }//end if
 }
 
 void MainView::tick(){
@@ -36,7 +45,7 @@ void MainView::tick(){
     auto batch = purple::Engine::getRenderEngine()->getSpriteBatch();
 
     purple::Paint framePaint;
-    framePaint.texFlip = true;
+    // framePaint.texFlip = true;
     
     batch->begin();
     batch->renderImage(image,srcRect, dstRect);
@@ -55,8 +64,13 @@ void MainView::trySkipNextFrame(){
     if(curFrameIndex + 1 >= appContext->frameList.size()){
         curFramePlayTime += deltaTime;
         if(curFramePlayTime > 25){
-            curFrameIndex = 0;
-            curFramePlayTime = 0;
+
+            if(isLoopPlay){
+                updateCurrentFrame(0);
+                curFramePlayTime = 0;
+            }else{
+                updateNewState(Pause);
+            }
         }
     }else{
         const float curPtsF = appContext->frameList[curFrameIndex]->pts;
@@ -67,10 +81,14 @@ void MainView::trySkipNextFrame(){
         
         curFramePlayTime += deltaTime;
         if(curFramePlayTime > nextPts - curPts){
-            curFrameIndex = curFrameIndex + 1;
+            updateCurrentFrame(curFrameIndex + 1);
             curFramePlayTime = 0;
         }
     }
+}
+
+void MainView::updateCurrentFrame(uint32_t newFrame){
+    curFrameIndex = newFrame;
 }
 
 void MainView::onResize(){

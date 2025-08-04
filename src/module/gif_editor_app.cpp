@@ -52,7 +52,6 @@ int GifEditorApp::decodeGifFile(const char* filepath){
         return 0;
     }
 
-
     AVFormatContext *formatContext = nullptr;
     AVCodecContext *codecContext = nullptr;
 
@@ -141,7 +140,24 @@ int GifEditorApp::decodeGifFile(const char* filepath){
                             width * colorSize);
                 }//end for y
 
-                onGetFrameImage(dst, frame->width, frame->height, ptsTime);
+                //copy and flip vertial
+                // for (uint32_t y = height; y > 0; y--) {
+                //     memcpy(dst + (height - y) * width * colorSize, 
+                //             frame->data[0] + y * src_stride, 
+                //             width * colorSize);
+                // }//end for y
+
+                //flip vertial
+                uint8_t* flipDst = new uint8_t[width * height * colorSize];
+                for(uint32_t y = height; y > 0 ;y--){
+                    memcpy(flipDst + (height - y) * width * colorSize, 
+                            dst + (y - 1) * width * colorSize, 
+                            width * colorSize); 
+                }//end for y
+
+                onGetFrameImage(flipDst, frame->width, frame->height, ptsTime);
+
+                delete[] flipDst;
                 delete[] dst;
 
                 frameCount++;
