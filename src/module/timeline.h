@@ -10,7 +10,7 @@ class TimeLine : public BaseWidget{
 public:
     const std::string TIME_LINE_TEX_NAME = "_timeline_tex";
 
-    const int EXTRACT_FRAME_COUNT = 1;
+    const int EXTRACT_FRAME_COUNT = 8;
 
     TimeLine();
 
