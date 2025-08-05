@@ -22,6 +22,8 @@ public:
 
     virtual ~TimeLine();
 private:
+    purple::Rect bottomTimeRect;
+    
     void prepare();
 
     void selectFramesToTimeline();
@@ -29,6 +31,8 @@ private:
     void renderTimelineFrames();
 
     void renderMiddleLine();
+
+    void renderTimeStr();
 
     uint32_t imageWidth;
     uint32_t imageHeight;

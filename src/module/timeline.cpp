@@ -4,6 +4,7 @@
 #include "input_action.h"
 #include "gif_editor_app.h"
 #include "main_view.h"
+#include "time_util.h"
 
 
 TimeLine::TimeLine(){
@@ -20,6 +21,11 @@ void TimeLine::init(GifEditorApp *appContext_){
     // this->setOnClickListener([](){
     //     purple::Log::i("timeline","clicked");
     // });
+
+    bottomTimeRect.left = viewRect.left;
+    bottomTimeRect.top = viewRect.getBottom();
+    bottomTimeRect.width = viewRect.width;
+    bottomTimeRect.height = bottomTimeRect.top;
 
     prepare();
 }
@@ -108,6 +114,8 @@ void TimeLine::tick(){
     
     renderMiddleLine();
 
+    renderTimeStr();
+
     // purple::Engine::getRenderEngine()->endScissor();
 }
 
@@ -161,6 +169,43 @@ void TimeLine::renderMiddleLine(){
     batch->begin();
     batch->renderRoundRect(lineRect, roundRadius, linePaint);
     batch->end();
+}
+
+void TimeLine::renderTimeStr(){
+    // purple::Paint linePaint;
+    // linePaint.color = purple::ConverColorValue(purple::Color::Red);
+    // auto batch = purple::Engine::getRenderEngine()->getShapeBatch();
+    // batch->begin();
+    // batch->renderRect(bottomTimeRect, linePaint);
+    // batch->end();
+
+    purple::TextPaint textPaint;
+    textPaint.textColor = purple::ConverColorValue(purple::Color::White);
+    textPaint.fontName = "youyuan";
+    textPaint.textGravity = purple::TextGravity::BottomCenter;
+    textPaint.fontWeight = 40.0f;
+    textPaint.setTextSize(bottomTimeRect.height * 1.1f);
+
+    auto textRender = purple::Engine::getRenderEngine()->getTextRender();
+    auto textRect = bottomTimeRect;
+    textRect.top -= 8;
+
+    uint32_t currentFrame = appContext->mMainView.getCurrentFrame();
+    
+    if(currentFrame >= 0 && currentFrame < appContext->frameList.size()){
+        float pts = appContext->frameList[currentFrame]->pts;
+        long long timePts = pts * 1000;
+        textRender->renderTextWithRect(TimeUtil::timeMillisToStr(timePts), 
+            textRect, textPaint, nullptr);
+    }
+
+    if(appContext->frameList.size() > 0){
+        textPaint.textGravity = purple::TextGravity::BottomRight;
+        float pts = appContext->frameList[appContext->frameList.size() - 1]->pts;
+        long long timePts = pts * 1000;
+        textRender->renderTextWithRect(TimeUtil::timeMillisToStr(timePts), 
+            textRect, textPaint, nullptr);
+    }
 }
 
 TimeLine::~TimeLine(){

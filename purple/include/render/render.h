@@ -19,6 +19,7 @@
 #include "log.h"
 #include <functional>
 #include "render/common.h"
+#include "render/text_render.h"
 
 namespace purple{
     class RenderCommand;

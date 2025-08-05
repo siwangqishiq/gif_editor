@@ -39,7 +39,7 @@ public:
     TimeLine mTimeline;
 private:
     long long timeMs = -1;
-
+    
     bool hasDecodeGifImage = false;
 
     InputAction *catchedInputWidget = nullptr;

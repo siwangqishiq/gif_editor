@@ -14,6 +14,8 @@ int Application::fps = 0;
 bool isFullScreen = false;
 
 void Application::onCreate(){
+    purple::Engine::getRenderEngine()->getTextRender()->loadFontRes("youyuan","text/youyuan.ttf",true);
+
     purple::Engine::getTimer()->scheduleAtFixedRate([this](void *app){
         fpsStr = std::to_wstring(fps);
         purple::Log::w("fps" , "fps : %d" , fps);
