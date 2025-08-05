@@ -11,8 +11,6 @@ struct ImageFrameData{
     float pts;
 };
 
-const unsigned int MAX_FRAME_COUNT = 128 * 8; //读取的最大帧图像数量
-
 class InputAction;
 
 class GifEditorApp : public purple::IApp{
