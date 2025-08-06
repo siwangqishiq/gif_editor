@@ -25,8 +25,18 @@ GifEditorApp::GifEditorApp(std::vector<std::string> params){
 
 void GifEditorApp::onInit(){
     purple::Log::i(TAG,"onInit");
-    decodeGifFile(filePath.c_str());
 
+    threadPool = std::make_unique<purple::ThreadPool>(1);
+
+    // threadPool->enqueue([this](){
+    //     decodeGifFile(filePath.c_str());
+    //     purple::Engine::getTimer()->schedule([this](void *p){
+    //         mMainView.init(this);
+    //         mTimeline.init(this);
+    //     },0);
+    // });
+
+    decodeGifFile(filePath.c_str());
     mMainView.init(this);
     mTimeline.init(this);
 
@@ -48,6 +58,9 @@ int GifEditorApp::decodeGifFile(const char* filepath){
     
     int ret = DecodeGifFile(filePath, [this](uint8_t *data,int w,int h ,double pts){
         onGetFrameImage(data, w, h, pts);
+        // purple::Engine::getTimer()->schedule([this,data,w,h,pts](void *p){
+        //     onGetFrameImage(data, w, h, pts);
+        // },0);
     });
 
     if(ret == DECODE_SUCCESS){
@@ -119,5 +132,6 @@ void GifEditorApp::onTick(){
 void GifEditorApp::onDispose(){
     purple::InputManager::getInstance()->removeEventListener(GIF_EDITOR_INPUT);
     purple::Log::i("GifEditorApp","TestTextUi::onDispose");
+    threadPool->shutdown();
 }
 

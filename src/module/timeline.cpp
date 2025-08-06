@@ -47,15 +47,19 @@ void TimeLine::prepare(){
     timelineWidgetTop = viewRect.center().y + thumbImageHeight / 2;
     timelineWidgetLeft = viewRect.center().x;
 
+    updateTimelineRect();
+    purple::Log::i("TimeLine", "thumbImageWidth %d x %d thumbImageWidth", thumbImageWidth, thumbImageHeight);
+    selectFramesToTimeline();
+}
+
+void TimeLine::updateTimelineRect(){
     timelineRect.left = timelineWidgetLeft;
     timelineRect.top = timelineWidgetTop;
-    timelineRect.width = viewRect.width;
+    timelineRect.width = thumbImageWidth * frameTexIndexArray.size();
     timelineRect.height = thumbImageHeight;
 
-    purple::Log::i("TimeLine", "thumbImageWidth %d x %d thumbImageWidth", thumbImageWidth, thumbImageHeight);
-
-
-    selectFramesToTimeline();
+    // purple::Log::i("debug", "timelineRect %f,%f %f,%f",timelineRect.left,
+    //     timelineRect.top,timelineRect.width,timelineRect.height);
 }
 
 void TimeLine::selectFramesToTimeline(){
@@ -116,9 +120,7 @@ void TimeLine::tick(){
     shapeBatch->end();
 
     renderTimelineFrames();
-    
     renderMiddleLine();
-
     renderTimeStr();
 
     // purple::Engine::getRenderEngine()->endScissor();
@@ -138,24 +140,49 @@ int TimeLine::findTimelineTexOffset(uint32_t curFrameIndex){
     return offset;
 }
 
+//从View的偏移计算出帧索引
+uint32_t TimeLine::findFrameIndexByTimelineOffset(int offset){
+    if(frameTexIndexArray.empty()){
+        return 0;
+    }
+
+    const float totalViewWidth = thumbImageWidth * frameTexIndexArray.size();
+    uint32_t findedFrameIndex = static_cast<uint32_t>((offset / totalViewWidth) * totalFrameCount);
+    return findedFrameIndex;
+}
+
 
 void TimeLine::renderTimelineFrames(){
     if(timelineImage == nullptr){
         return;
     }
 
-
     purple::Rect srcRect = timelineImage->getRect();
     purple::Rect dstRect;
     dstRect = srcRect;
-    // purple::Log::e("timeline" , "offset = %d", findTimelineTexOffset(appContext->mMainView.getCurrentFrame()));
-    dstRect.left = viewRect.width / 2 - findTimelineTexOffset(appContext->mMainView.getCurrentFrame());
-    dstRect.top = timelineWidgetTop;
 
+    if(widgetState == Idle){
+        timelineWidgetLeft = viewRect.width / 2 - findTimelineTexOffset(appContext->mMainView.getCurrentFrame());
+        updateTimelineRect();
+    }else{
+        timelineWidgetLeft = timelineRect.left;
+    }
+
+
+    //render timeline frame
+    dstRect.left = timelineWidgetLeft;
+    dstRect.top = timelineWidgetTop;
     auto batch = purple::Engine::getRenderEngine()->getSpriteBatch();
     batch->begin();
     batch->renderImage(*timelineImage, srcRect, dstRect);
     batch->end();
+
+    // auto debugBatch = purple::Engine::getRenderEngine()->getShapeBatch();
+    // debugBatch->begin();
+    // purple::Paint debugPaint;
+    // debugPaint.color = glm::vec4(1.0f, 0.0f, 0.0f , 0.6f);
+    // debugBatch->renderRect(timelineRect, debugPaint);
+    // debugBatch->end();
 }
 
 void TimeLine::renderMiddleLine(){
@@ -216,22 +243,68 @@ void TimeLine::renderTimeStr(){
 bool TimeLine::onTouchEvent(purple::InputEvent &e) {
     const float x = e.x;
     const float y = e.y;
+    // purple::Log::i("debug", "ontouch %f,%f",x, y);
 
     bool result = false;
     switch(e.action){
     case purple::EVENT_ACTION_BEGIN:
         if(timelineRect.isPointInRect(x,y)){
             result = true;
+            widgetState = Move;
+            onTimelineScrollBegin(x,y);
         }
         break;
     case purple::EVENT_ACTION_MOVE:
-        
+        if(widgetState == Move){
+            result = true;
+            onTimelineScrollMove(x,y);
+        }
         break;
     case purple::EVENT_ACTION_END:
     case purple::EVENT_ACTION_CANCEL:
+        if(widgetState == Move){
+            widgetState = Idle;
+            result = true;
+
+            onTimelineScrollEnd(x,y);
+        }
         break;
     }//end switch
     return result;
+}
+
+void TimeLine::onTimelineScrollBegin(float x, float y){
+    purple::Log::i("timeline", "onTimelineScrollBegin");
+    
+    if(appContext->mMainView.state != MainViewState::Pause){
+        appContext->mMainView.updateNewState(MainViewState::Pause);
+    }
+
+    scrollBeginX = x;
+    timelineRectBeiginX = timelineRect.left;
+}
+
+void TimeLine::onTimelineScrollMove(float x, float y){
+    // purple::Log::i("timeline", "onTimelineScrollMove");
+    const float deltaX = x - scrollBeginX;
+    const float limitLeft = viewRect.center().x;
+    const float limitRight = viewRect.center().x - thumbImageWidth * frameTexIndexArray.size();
+
+    float newLeftPos = timelineRectBeiginX + deltaX;
+    if(newLeftPos <= limitRight){
+        newLeftPos = limitRight;
+    }else if(newLeftPos >= limitLeft){
+        newLeftPos = limitLeft;
+    }
+    timelineRect.left = newLeftPos;
+
+    uint32_t setFrameIndex = findFrameIndexByTimelineOffset(viewRect.center().x - timelineRect.left);
+    // purple::Log::i("timeline", "onTimelineScrollMove setFrameIndex = %d" , setFrameIndex);
+    appContext->mMainView.updateCurrentFrame(setFrameIndex);
+}
+
+void TimeLine::onTimelineScrollEnd(float x, float y){
+    purple::Log::i("timeline", "onTimelineScrollEnd");
 }
 
 TimeLine::~TimeLine(){

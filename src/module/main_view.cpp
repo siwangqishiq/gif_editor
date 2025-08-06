@@ -88,6 +88,9 @@ void MainView::trySkipNextFrame(){
 }
 
 void MainView::updateCurrentFrame(uint32_t newFrame){
+    if(newFrame >= appContext->frameList.size()){ //limit
+        newFrame = appContext->frameList.size() - 1;
+    }
     curFrameIndex = newFrame;
 }
 

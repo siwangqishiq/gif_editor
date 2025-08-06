@@ -8,7 +8,7 @@ class GifEditorApp;
 
 enum TimeLineWidgetState{
     Idle,
-    MOVE
+    Move
 };
 
 class TimeLine : public BaseWidget{
@@ -26,6 +26,7 @@ public:
     void tick();
 
     int findTimelineTexOffset(uint32_t curFrameIndex);
+    uint32_t findFrameIndexByTimelineOffset(int offset);
 
     virtual bool onTouchEvent(purple::InputEvent &e) override;
 
@@ -33,6 +34,9 @@ public:
 private:
     purple::Rect timelineRect;
     purple::Rect bottomTimeRect;
+
+    float scrollBeginX;
+    float timelineRectBeiginX;
     
     void prepare();
 
@@ -44,12 +48,18 @@ private:
 
     void renderTimeStr();
 
+    void updateTimelineRect();
+
+    void onTimelineScrollBegin(float x, float y);
+    void onTimelineScrollMove(float x, float y);
+    void onTimelineScrollEnd(float x, float y);
+
     uint32_t imageWidth;
     uint32_t imageHeight;
     uint32_t totalFrameCount= 0;
 
-    int thumbImageHeight;
-    int thumbImageWidth;
+    int thumbImageHeight = 1.0f;
+    int thumbImageWidth = 1.0f;
 
     int timelineWidgetTop = 0;
     int timelineWidgetLeft = 0;

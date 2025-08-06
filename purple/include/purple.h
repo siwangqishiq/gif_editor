@@ -13,6 +13,7 @@
 #include "audio/audio.h"
 #include "input/input_common.h"
 #include <cmath>
+#include "widget/thread_pool.h"
 
 
 namespace purple{

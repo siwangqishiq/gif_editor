@@ -37,6 +37,8 @@ public:
 
     MainView mMainView;
     TimeLine mTimeline;
+    
+    std::unique_ptr<purple::ThreadPool> threadPool;
 private:
     long long timeMs = -1;
     
