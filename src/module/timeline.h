@@ -6,8 +6,15 @@
 
 class GifEditorApp;
 
+enum TimeLineWidgetState{
+    Idle,
+    MOVE
+};
+
 class TimeLine : public BaseWidget{
 public:
+    TimeLineWidgetState widgetState = Idle;
+
     const std::string TIME_LINE_TEX_NAME = "_timeline_tex";
 
     const int EXTRACT_FRAME_COUNT = 8;
@@ -20,8 +27,11 @@ public:
 
     int findTimelineTexOffset(uint32_t curFrameIndex);
 
+    virtual bool onTouchEvent(purple::InputEvent &e) override;
+
     virtual ~TimeLine();
 private:
+    purple::Rect timelineRect;
     purple::Rect bottomTimeRect;
     
     void prepare();

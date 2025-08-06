@@ -70,6 +70,18 @@ int DecodeGifFile(std::string path,
 
     unsigned int frameCount = 0;
     bool isBreak = false;
+
+    uint8_t* dstData[4];
+    int dstLinesize[4];
+
+    uint32_t width = 0;
+    uint32_t height = 0;
+    
+    uint8_t* dst = nullptr;
+    uint8_t* flipDst = nullptr;
+    const unsigned int colorSize = 4;
+    SwsContext* swsCtx = nullptr;
+
     while(av_read_frame(formatContext, packet) >= 0){
         if (packet->stream_index == videoSteamIdx) {
             int ret = avcodec_send_packet(codecContext, packet);
@@ -90,27 +102,47 @@ int DecodeGifFile(std::string path,
                     av_get_pix_fmt_name((AVPixelFormat)frame->format),
                     frame->linesize[0]);
                 
-                uint32_t width = frame->width;
-                uint32_t height = frame->height;
-                int src_stride = frame->linesize[0];
+                width = frame->width;
+                height = frame->height;
+                // int src_stride = frame->linesize[0];
                 
-                const unsigned int colorSize = 4;
-                uint8_t* dst = new uint8_t[width * height * colorSize];
-                for (uint32_t y = 0; y < height; y++) {
-                    memcpy(dst + y * width * colorSize, 
-                            frame->data[0] + y * src_stride, 
-                            width * colorSize);
-                }//end for y
+                if(dst == nullptr){
+                    dst = new uint8_t[width * height * colorSize];
+                }
 
-                //copy and flip vertial
-                // for (uint32_t y = height; y > 0; y--) {
-                //     memcpy(dst + (height - y) * width * colorSize, 
-                //             frame->data[0] + y * src_stride, 
-                //             width * colorSize);
-                // }//end for y
+                // if(frame->format == AV_PIX_FMT_YUV420P){
+                    
+                // }else{
+                //     for (uint32_t y = 0; y < height; y++) {
+                //         memcpy(dst + y * width * colorSize, 
+                //                 frame->data[0] + y * src_stride, 
+                //                 width * colorSize);
+                //     }//end for y
+                // }
+
+                if(swsCtx == nullptr){
+                    swsCtx = sws_getContext(
+                        width, height, 
+                        static_cast<AVPixelFormat>(frame->format),  // 输入格式
+                        width, height, 
+                        AV_PIX_FMT_BGRA,     // 
+                        SWS_BILINEAR, nullptr, nullptr, nullptr   // 
+                    );
+                    av_image_alloc(dstData, dstLinesize, width, height, AV_PIX_FMT_RGBA, 1);
+                }
+
+                sws_scale(swsCtx,
+                    frame->data, frame->linesize,      
+                    0, height,
+                    dstData, dstLinesize          
+                );
+
+                memcpy(dst, dstData[0], width * height * colorSize);
 
                 //flip vertial
-                uint8_t* flipDst = new uint8_t[width * height * colorSize];
+                if(flipDst == nullptr){
+                    flipDst = new uint8_t[width * height * colorSize];
+                }
                 for(uint32_t y = height; y > 0 ;y--){
                     memcpy(flipDst + (height - y) * width * colorSize, 
                             dst + (y - 1) * width * colorSize, 
@@ -121,9 +153,6 @@ int DecodeGifFile(std::string path,
                 if(onGetFrameImageFunc != nullptr){
                     onGetFrameImageFunc(flipDst, frame->width, frame->height, ptsTime);
                 }
-
-                delete[] flipDst;
-                delete[] dst;
 
                 frameCount++;
 
@@ -141,8 +170,22 @@ int DecodeGifFile(std::string path,
         av_packet_unref(packet);
     }//end while
 
+    if(flipDst != nullptr){
+        delete[] flipDst;
+    }
+    
+    if(dst != nullptr){
+        delete[] dst;
+    }
+
     av_frame_free(&frame);
     av_packet_free(&packet);
+    
+    av_freep(&dstData[0]);
+    if(swsCtx != nullptr){
+        sws_freeContext(swsCtx);
+    }
+
     avcodec_free_context(&codecContext);
     avformat_close_input(&formatContext);
 

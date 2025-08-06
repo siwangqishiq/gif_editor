@@ -10,7 +10,7 @@ const char *FILE_PATH = "../assets/gakki.gif";
 // const char *FILE_PATH = "../assets/nezha.gif";
 // const char *FILE_PATH = "../assets/loading.gif";
 // const char *FILE_PATH = "../assets/test.gif";
-// const char *FILE_PATH = "../assets/yaoren.mp4";
+// const char *FILE_PATH = "../assets/wanzi.mp4";
 
 const char *TAG = "gif_editor";
 const std::string GIF_EDITOR_INPUT = "gif_editor_input";

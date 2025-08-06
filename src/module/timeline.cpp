@@ -40,12 +40,17 @@ void TimeLine::prepare(){
     imageHeight = appContext->frameList[0]->tex->getHeight();
     totalFrameCount = appContext->frameList.size();
 
-    thumbImageHeight = (2 * viewRect.height) / 3;
+    thumbImageHeight = (viewRect.height) / 2;
     const float ratio = static_cast<float>(imageWidth) / static_cast<float>(imageHeight);
     thumbImageWidth = thumbImageHeight * ratio;
 
     timelineWidgetTop = viewRect.center().y + thumbImageHeight / 2;
     timelineWidgetLeft = viewRect.center().x;
+
+    timelineRect.left = timelineWidgetLeft;
+    timelineRect.top = timelineWidgetTop;
+    timelineRect.width = viewRect.width;
+    timelineRect.height = thumbImageHeight;
 
     purple::Log::i("TimeLine", "thumbImageWidth %d x %d thumbImageWidth", thumbImageWidth, thumbImageHeight);
 
@@ -206,6 +211,27 @@ void TimeLine::renderTimeStr(){
         textRender->renderTextWithRect(TimeUtil::timeMillisToStr(timePts), 
             textRect, textPaint, nullptr);
     }
+}
+
+bool TimeLine::onTouchEvent(purple::InputEvent &e) {
+    const float x = e.x;
+    const float y = e.y;
+
+    bool result = false;
+    switch(e.action){
+    case purple::EVENT_ACTION_BEGIN:
+        if(timelineRect.isPointInRect(x,y)){
+            result = true;
+        }
+        break;
+    case purple::EVENT_ACTION_MOVE:
+        
+        break;
+    case purple::EVENT_ACTION_END:
+    case purple::EVENT_ACTION_CANCEL:
+        break;
+    }//end switch
+    return result;
 }
 
 TimeLine::~TimeLine(){

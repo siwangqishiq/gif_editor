@@ -22,19 +22,17 @@ std::wstring TimeUtil::timeMillisToStr(long long timeMills){
         seconds = seconds - 60 * minutes;
     }
 
-    std::wstring resultStr= L"";
+    std::wstring resultStr; // std::wstringstream
+    resultStr.reserve(16);
     if(minutes > 0){
-        resultStr = resultStr + intToTimeStr(minutes);
-        resultStr = resultStr + L":";
+        resultStr.append(intToTimeStr(minutes));
+        resultStr.append(L":");
     }
 
-    resultStr = resultStr + intToTimeStr(seconds);
-    resultStr = resultStr + L".";
-    resultStr = resultStr + intToTimeStr(microSec);
+    resultStr.append(intToTimeStr(seconds));
+    resultStr.append(L".");
+    resultStr.append(intToTimeStr(microSec));
 
-    // std::cout << "minute :" << minutes << " sec:" <<seconds << " micro :"
-    //      << microSec << " "  << std::endl;
-    // std::wcout << resultStr << std::endl;
     return resultStr;
 }
 
