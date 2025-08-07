@@ -4,6 +4,7 @@
 #include "input/input_manager.h"
 #include "input_action.h"
 #include "decode.h"
+#include "glheader.h"
 
 // const char *FILE_PATH = "../assets/sharongzi.gif";
 const char *FILE_PATH = "../assets/gakki.gif";
@@ -71,7 +72,7 @@ int GifEditorApp::decodeGifFile(const char* filepath){
 
 void GifEditorApp::onGetFrameImage(uint8_t *data, int w, int h , double pts){
     purple::Log::w(TAG, "onGetFrameImage");
-    auto tex = purple::BuildImageByPixlData(data, w, h, GL_BGRA);
+    auto tex = purple::BuildImageByPixlData(data, w, h, GL_RGBA);
     purple::Log::w(TAG, "onGetFrameImage frameData");
     std::unique_ptr<ImageFrameData> frameData = std::make_unique<ImageFrameData>();
     frameData->pts = static_cast<float>(pts);

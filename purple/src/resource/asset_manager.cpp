@@ -230,7 +230,7 @@ namespace purple{
         AAsset_close(file);
 
 //        Log::i("asset_manager","file content = %s" , fileContentBuf.get());
-        std::wstring contentStr = toWideString(std::string(fileContentBuf.get()));
+        std::wstring contentStr = ToWideString(std::string(fileContentBuf.get()));
         return contentStr;
     }
 

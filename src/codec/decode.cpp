@@ -125,7 +125,7 @@ int DecodeGifFile(std::string path,
                         width, height, 
                         static_cast<AVPixelFormat>(frame->format),  // 输入格式
                         width, height, 
-                        AV_PIX_FMT_BGRA,     // 
+                        AV_PIX_FMT_RGBA,     // 
                         SWS_BILINEAR, nullptr, nullptr, nullptr   // 
                     );
                     av_image_alloc(dstData, dstLinesize, width, height, AV_PIX_FMT_RGBA, 1);
