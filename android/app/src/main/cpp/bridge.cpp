@@ -25,7 +25,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved){
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_panyi_xyz_textrender_NativeBridge_init(JNIEnv *env, jclass clazz) {
+Java_panyi_xyz_gifeditor_NativeBridge_init(JNIEnv *env, jclass clazz) {
     app = std::make_shared<AndroidApplication>();
     if(haveGetSize){
         app->init();
@@ -34,7 +34,7 @@ Java_panyi_xyz_textrender_NativeBridge_init(JNIEnv *env, jclass clazz) {
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_panyi_xyz_textrender_NativeBridge_tick(JNIEnv *env, jclass clazz) {
+Java_panyi_xyz_gifeditor_NativeBridge_tick(JNIEnv *env, jclass clazz) {
     //LOGI("app tick");
     if(app != nullptr){
         app->tick();
@@ -43,7 +43,7 @@ Java_panyi_xyz_textrender_NativeBridge_tick(JNIEnv *env, jclass clazz) {
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_panyi_xyz_textrender_NativeBridge_free(JNIEnv *env, jclass clazz) {
+Java_panyi_xyz_gifeditor_NativeBridge_free(JNIEnv *env, jclass clazz) {
     app->dispose();
     haveGetSize = false;
     app = nullptr;
@@ -51,7 +51,7 @@ Java_panyi_xyz_textrender_NativeBridge_free(JNIEnv *env, jclass clazz) {
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_panyi_xyz_textrender_NativeBridge_resize(JNIEnv *env, jclass clazz, jint width, jint height) {
+Java_panyi_xyz_gifeditor_NativeBridge_resize(JNIEnv *env, jclass clazz, jint width, jint height) {
     app->resize(width , height);
     haveGetSize = true;
     app->init();
@@ -59,7 +59,7 @@ Java_panyi_xyz_textrender_NativeBridge_resize(JNIEnv *env, jclass clazz, jint wi
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_panyi_xyz_textrender_NativeBridge_setAndroidAssetManager(JNIEnv *env, jclass clazz,
+Java_panyi_xyz_gifeditor_NativeBridge_setAndroidAssetManager(JNIEnv *env, jclass clazz,
                                                               jobject mgr) {
     purple::AndroidAssetManager::AndroidAssetManagerInstance = AAssetManager_fromJava(env , mgr);
 //    AndroidApplication::AndroidAssetManagerInstance = AAssetManager_fromJava(env , mgr);
@@ -67,7 +67,7 @@ Java_panyi_xyz_textrender_NativeBridge_setAndroidAssetManager(JNIEnv *env, jclas
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_panyi_xyz_textrender_NativeBridge_handleOnAction(JNIEnv *env, jclass clazz, jint action,
+Java_panyi_xyz_gifeditor_NativeBridge_handleOnAction(JNIEnv *env, jclass clazz, jint action,
                                                       jfloat x, jfloat y) {
     if(app != nullptr){
         app->onTouchEvent(action , x , y);
@@ -76,7 +76,7 @@ Java_panyi_xyz_textrender_NativeBridge_handleOnAction(JNIEnv *env, jclass clazz,
 
 extern "C"
 JNIEXPORT jstring JNICALL
-Java_panyi_xyz_textrender_NativeBridge_ffmpegVersion(JNIEnv *env, jclass clazz) {
+Java_panyi_xyz_gifeditor_NativeBridge_ffmpegVersion(JNIEnv *env, jclass clazz) {
     unsigned version = avcodec_version();  // 获取版本号
     char info[100];
     snprintf(info, sizeof(info), "%u.%u.%u",
