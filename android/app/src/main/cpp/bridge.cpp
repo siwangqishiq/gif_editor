@@ -6,6 +6,10 @@
 #include "AndroidApplication.h"
 #include "resource/asset_manager.h"
 
+extern "C"{
+#include "libavcodec/avcodec.h"
+}
+
 std::shared_ptr<AndroidApplication> app = nullptr;
 
 bool haveGetSize = false;
@@ -68,4 +72,14 @@ Java_panyi_xyz_textrender_NativeBridge_handleOnAction(JNIEnv *env, jclass clazz,
     if(app != nullptr){
         app->onTouchEvent(action , x , y);
     }//end if
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_panyi_xyz_textrender_NativeBridge_ffmpegVersion(JNIEnv *env, jclass clazz) {
+    unsigned version = avcodec_version();  // 获取版本号
+    char info[100];
+    snprintf(info, sizeof(info), "%u.%u.%u",
+             (version >> 16) & 0xFF, (version >> 8) & 0xFF, version & 0xFF);
+    return env->NewStringUTF(info);
 }

@@ -24,4 +24,6 @@ public final class NativeBridge {
     public static native void setAndroidAssetManager(AssetManager mgr);
 
     public static native void handleOnAction(int action , float x , float y);
+
+    public static native String ffmpegVersion();
 }

@@ -1,4 +1,4 @@
-package panyi.xyz.textrender;
+package panyi.xyz.textrender.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,10 +9,10 @@ import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
 
-import java.util.Timer;
-
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
+
+import panyi.xyz.textrender.NativeBridge;
 
 public class MainActivity extends AppCompatActivity {
     private MainView mMainView;
