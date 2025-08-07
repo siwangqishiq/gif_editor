@@ -18,7 +18,7 @@
         android:theme="@style/Theme.Design.NoActionBar"
         tools:targetApi="31">
         <activity
-            android:name="panyi.xyz.textrender.activity.WelcomeActivity"
+            android:name="panyi.xyz.gifeditor.activity.WelcomeActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,7 +26,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="panyi.xyz.textrender.activity.MainActivity" />
+        <activity android:name="panyi.xyz.gifeditor.activity.FilePickerActivity" />
+        <activity android:name="panyi.xyz.gifeditor.activity.MainActivity" />
     </application>
 
 </manifest>

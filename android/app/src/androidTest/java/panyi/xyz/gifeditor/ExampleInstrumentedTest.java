@@ -1,4 +1,4 @@
-package panyi.xyz.textrender;
+package panyi.xyz.gifeditor;
 
 import android.content.Context;
 

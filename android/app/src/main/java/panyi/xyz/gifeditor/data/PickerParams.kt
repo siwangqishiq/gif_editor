@@ -1,4 +1,4 @@
-package panyi.xyz.textrender.data
+package panyi.xyz.gifeditor.data
 
 import java.io.Serializable
 

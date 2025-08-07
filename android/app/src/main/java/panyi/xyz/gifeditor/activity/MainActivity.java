@@ -1,4 +1,4 @@
-package panyi.xyz.textrender.activity;
+package panyi.xyz.gifeditor.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -12,7 +12,7 @@ import android.view.WindowManager;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import panyi.xyz.textrender.NativeBridge;
+import panyi.xyz.gifeditor.NativeBridge;
 
 public class MainActivity extends AppCompatActivity {
     private MainView mMainView;
@@ -31,9 +31,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         if(mMainView != null){
-            mMainView.postRunnableRenderThread(()->{
-                NativeBridge.free();
-            });
+            mMainView.postRunnableRenderThread(NativeBridge::free);
         }
         super.onDestroy();
     }

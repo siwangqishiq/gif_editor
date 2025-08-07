@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Purple"
+rootProject.name = "GifEditor"
 include ':app'

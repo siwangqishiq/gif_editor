@@ -1,16 +1,16 @@
-package panyi.xyz.textrender.activity
+package panyi.xyz.gifeditor.activity
 
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import panyi.xyz.gifeditor.R
-import panyi.xyz.textrender.NativeBridge
+import panyi.xyz.gifeditor.NativeBridge
+import panyi.xyz.gifeditor.data.PICKER_TYPE_VIDEO
 import xyz.panyi.fullstackeditor.data.REQUEST_CODE_PICK_VIDEO
 import xyz.panyi.fullstackeditor.data.REQUEST_PERMISSION_READ_VIDEOS
 import xyz.panyi.textrender.util.Log
@@ -40,7 +40,7 @@ class WelcomeActivity : AppCompatActivity() {
     private fun selectVideoFile(){
         Log.i(TAG, "selectVideoFile")
         if(checkSelfPermission(Manifest.permission.READ_MEDIA_VIDEO) == PackageManager.PERMISSION_GRANTED){
-//            FilePickerActivity.start(this, PICKER_TYPE_VIDEO, REQUEST_CODE_PICK_VIDEO)
+            FilePickerActivity.start(this, PICKER_TYPE_VIDEO, REQUEST_CODE_PICK_VIDEO)
         }else{
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 requestPermissions(arrayOf(Manifest.permission.READ_MEDIA_VIDEO), REQUEST_PERMISSION_READ_VIDEOS)
