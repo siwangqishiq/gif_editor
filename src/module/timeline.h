@@ -50,6 +50,8 @@ private:
 
     void updateTimelineRect();
 
+    void releaseTimelineAllTextures();
+
     void onTimelineScrollBegin(float x, float y);
     void onTimelineScrollMove(float x, float y);
     void onTimelineScrollEnd(float x, float y);
@@ -68,6 +70,6 @@ private:
 
     int offset = 0;
 
-    std::shared_ptr<purple::TextureInfo> timelineTexInfo = nullptr;
-    std::shared_ptr<purple::TextureImage> timelineImage = nullptr;
+    unsigned int buildVirtualTexIndex = 0;
+    std::vector<std::shared_ptr<purple::TextureInfo>> timelineTexInfoList;
 };

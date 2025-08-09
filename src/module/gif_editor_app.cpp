@@ -27,6 +27,13 @@ GifEditorApp::GifEditorApp(std::vector<std::string> params){
 void GifEditorApp::onInit(){
     purple::Log::i(TAG,"onInit");
 
+
+    if(purple::Engine::ScreenWidth == 0 || purple::Engine::ScreenHeight == 0){
+        purple::Log::e(TAG,"screen size %d %d not need to init!" , 
+            purple::Engine::ScreenWidth,purple::Engine::ScreenHeight);
+        return;
+    }
+
     threadPool = std::make_unique<purple::ThreadPool>(1);
 
     // threadPool->enqueue([this](){
@@ -71,9 +78,9 @@ int GifEditorApp::decodeGifFile(const char* filepath){
 }
 
 void GifEditorApp::onGetFrameImage(uint8_t *data, int w, int h , double pts){
-    purple::Log::w(TAG, "onGetFrameImage");
+    // purple::Log::w(TAG, "onGetFrameImage");
     auto tex = purple::BuildImageByPixlData(data, w, h, GL_RGBA);
-    purple::Log::w(TAG, "onGetFrameImage frameData");
+    // purple::Log::w(TAG, "onGetFrameImage frameData");
     std::unique_ptr<ImageFrameData> frameData = std::make_unique<ImageFrameData>();
     frameData->pts = static_cast<float>(pts);
     frameData->tex = tex;

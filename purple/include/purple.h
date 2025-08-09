@@ -71,6 +71,8 @@ namespace purple{
         static std::shared_ptr<Timer> getTimer();
 
         static int vpTopx(float vpSize);
+
+        static int MaxTextureSize;
         
         //导出图片
         static int exportImageFile(std::string path ,int left , int top , 

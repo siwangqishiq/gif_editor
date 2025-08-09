@@ -5,7 +5,8 @@
 #include "gif_editor_app.h"
 #include "main_view.h"
 #include "time_util.h"
-
+#include <string>
+#include "colors.h"
 
 TimeLine::TimeLine(){
 }
@@ -70,39 +71,55 @@ void TimeLine::selectFramesToTimeline(){
         }
     }//end for i
     
-    if(timelineTexInfo != nullptr){
-        purple::TextureManager::getInstance()->freeTexture(*timelineTexInfo);
+    releaseTimelineAllTextures();
+
+    const int texTotalWidth = thumbImageWidth * frameTexIndexArray.size();
+    int texCostWidth = 0;
+    int index = 0;
+    buildVirtualTexIndex = 0;
+
+    int tileTexWidth = 1024;
+
+    if(tileTexWidth % thumbImageWidth != 0){
+        tileTexWidth = tileTexWidth - (tileTexWidth % thumbImageWidth);
     }
 
-    timelineTexInfo = purple::Engine::getRenderEngine()->buildVirtualTexture(
-        TIME_LINE_TEX_NAME,
-        thumbImageWidth * frameTexIndexArray.size(),
-        thumbImageHeight,
-        [this](int w,int h){
-            int x = 0;
-            purple::Rect dst;
-            dst.top = thumbImageHeight;
-            dst.width = thumbImageWidth;
-            dst.height = thumbImageHeight;
-            
-            for(size_t i = 0; i < frameTexIndexArray.size() ;i++){
-                dst.left =x;
-                
-                // purple::Paint paint;
-                // paint.texFlip = true;
-                auto batch = purple::Engine::getRenderEngine()->getSpriteBatch();
-                batch->begin();
-                auto image = appContext->frameList[frameTexIndexArray[i]]->tex;
-                auto srcRect = image->getRect();
-                batch->renderImage(image, srcRect, dst);
-                batch->end();
+    // purple::Log::e("tileTexWidth" ,"tileTexWidth = %d  texTotalWidth = %d", tileTexWidth , texTotalWidth);
+    
+    while(texCostWidth <= texTotalWidth){
+        //创建虚拟纹理
+        std::shared_ptr<purple::TextureInfo> tileTextureInfo = purple::Engine::getRenderEngine()->buildVirtualTexture(
+            std::string(TIME_LINE_TEX_NAME) + std::to_string(index),
+            tileTexWidth,
+            thumbImageHeight,
+            [this](int w,int h){
+                purple::Rect dst;
+                dst.top = thumbImageHeight;
+                dst.width = thumbImageWidth;
+                dst.height = thumbImageHeight;
 
-                x += thumbImageWidth;
-            }//end for i
-           
-        }
-    );
-    timelineImage = std::make_shared<purple::TextureImage>(timelineTexInfo);
+                // purple::Log::w("TimelineTexture" ,"buildVirtualTexIndex : %d", buildVirtualTexIndex);
+                
+                int start = 0;
+                while(start < w && buildVirtualTexIndex < frameTexIndexArray.size()){
+                    dst.left = start;
+                    auto batch = purple::Engine::getRenderEngine()->getSpriteBatch();
+                    batch->begin();
+                    auto image = appContext->frameList[frameTexIndexArray[buildVirtualTexIndex]]->tex;
+                    auto srcRect = image->getRect();
+                    batch->renderImage(image, srcRect, dst);
+                    batch->end();
+                    
+                    start += thumbImageWidth;
+                    buildVirtualTexIndex++;
+                }//end while
+            }
+        );
+
+        texCostWidth += tileTexWidth;
+        index++;
+        timelineTexInfoList.push_back(tileTextureInfo);
+    }//end while
 }
 
 
@@ -127,7 +144,7 @@ void TimeLine::tick(){
 }
 
 int TimeLine::findTimelineTexOffset(uint32_t curFrameIndex){
-    if(curFrameIndex >= totalFrameCount || timelineTexInfo == nullptr){
+    if(curFrameIndex >= totalFrameCount || timelineTexInfoList.empty()){
         purple::Log::e("TimeLine" , "findTimelineTexOffset error");
         return -1;
     }
@@ -136,7 +153,7 @@ int TimeLine::findTimelineTexOffset(uint32_t curFrameIndex){
     const float frameIndexInSelected = curFrameIndex / select2OriginScale;
 
     float offsetFactor = frameIndexInSelected/ static_cast<float>(frameTexIndexArray.size());
-    int offset = offsetFactor * timelineTexInfo->width;
+    int offset = offsetFactor * (thumbImageWidth * frameTexIndexArray.size());
     return offset;
 }
 
@@ -153,13 +170,9 @@ uint32_t TimeLine::findFrameIndexByTimelineOffset(int offset){
 
 
 void TimeLine::renderTimelineFrames(){
-    if(timelineImage == nullptr){
+    if(timelineTexInfoList.empty()){
         return;
     }
-
-    purple::Rect srcRect = timelineImage->getRect();
-    purple::Rect dstRect;
-    dstRect = srcRect;
 
     if(widgetState == Idle){
         timelineWidgetLeft = viewRect.width / 2 - findTimelineTexOffset(appContext->mMainView.getCurrentFrame());
@@ -168,26 +181,31 @@ void TimeLine::renderTimelineFrames(){
         timelineWidgetLeft = timelineRect.left;
     }
 
+    float left = timelineWidgetLeft;
+    for(std::shared_ptr<purple::TextureInfo> &tex : timelineTexInfoList){
+        std::shared_ptr<purple::TextureImage> image = std::make_shared<purple::TextureImage>(tex);
 
-    //render timeline frame
-    dstRect.left = timelineWidgetLeft;
-    dstRect.top = timelineWidgetTop;
-    auto batch = purple::Engine::getRenderEngine()->getSpriteBatch();
-    batch->begin();
-    batch->renderImage(*timelineImage, srcRect, dstRect);
-    batch->end();
+        purple::Rect srcRect = image->getRect();
+        purple::Rect dstRect;
+        dstRect = srcRect;
 
-    // auto debugBatch = purple::Engine::getRenderEngine()->getShapeBatch();
-    // debugBatch->begin();
-    // purple::Paint debugPaint;
-    // debugPaint.color = glm::vec4(1.0f, 0.0f, 0.0f , 0.6f);
-    // debugBatch->renderRect(timelineRect, debugPaint);
-    // debugBatch->end();
+        //render timeline frame
+        // purple::Log::w("time_line", "left : %f" ,left);
+        dstRect.left = left;
+        dstRect.top = timelineWidgetTop;
+        auto batch = purple::Engine::getRenderEngine()->getSpriteBatch();
+        batch->begin();
+        batch->renderImage(*image, srcRect, dstRect);
+        batch->end();
+
+        left += srcRect.width;
+    }//end for each
 }
 
 void TimeLine::renderMiddleLine(){
     purple::Paint linePaint;
-    linePaint.color = purple::ConverColorValue(purple::Color::White);
+    // linePaint.color = purple::ConverColorValue(purple::Color::White);
+    linePaint.color = Colors::TIMELINE_MIDDLELLINE;
     
     purple::Rect lineRect;
 
@@ -204,13 +222,6 @@ void TimeLine::renderMiddleLine(){
 }
 
 void TimeLine::renderTimeStr(){
-    // purple::Paint linePaint;
-    // linePaint.color = purple::ConverColorValue(purple::Color::Red);
-    // auto batch = purple::Engine::getRenderEngine()->getShapeBatch();
-    // batch->begin();
-    // batch->renderRect(bottomTimeRect, linePaint);
-    // batch->end();
-
     purple::TextPaint textPaint;
     textPaint.textColor = purple::ConverColorValue(purple::Color::White);
     textPaint.fontName = "youyuan";
@@ -307,8 +318,17 @@ void TimeLine::onTimelineScrollEnd(float x, float y){
     purple::Log::i("timeline", "onTimelineScrollEnd");
 }
 
-TimeLine::~TimeLine(){
-    if(timelineTexInfo != nullptr){
-        purple::TextureManager::getInstance()->freeTexture(*timelineTexInfo);
+void TimeLine::releaseTimelineAllTextures(){
+    if(!timelineTexInfoList.empty()){
+        // purple::TextureManager::getInstance()->freeTexture(*timelineTexInfo);
+        for(auto &texInfo : timelineTexInfoList){
+            purple::TextureManager::getInstance()->freeTexture(*texInfo);
+        }
+
+        timelineTexInfoList.clear();
     }
+}
+
+TimeLine::~TimeLine(){
+    releaseTimelineAllTextures();
 }

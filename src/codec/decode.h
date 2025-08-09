@@ -4,7 +4,7 @@
 #include <functional>
 #include <cstdint>
 
-const unsigned int MAX_FRAME_COUNT = 128*1; //读取的最大帧图像数量
+const unsigned int MAX_FRAME_COUNT = 128 * 8; //读取的最大帧图像数量
 
 const int DECODE_SUCCESS = 0;
 const int DECODE_ERR = -1;

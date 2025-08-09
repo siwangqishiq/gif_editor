@@ -25,6 +25,8 @@ namespace purple{
     int purple::Engine::ScreenHeight = 0;
     float purple::Engine::dpSize = 1.0f;
 
+    int purple::Engine::MaxTextureSize = 1024;
+
     bool UNITTEST = false;
 
     Platform platform = Unknow;
@@ -92,13 +94,19 @@ namespace purple{
         long startTime = currentTimeMillis();
         ScreenWidth = width;
         ScreenHeight = height;
-        
+
         Log::w(TAG,"init screen size: %d  , %d" , ScreenWidth , ScreenHeight);
+
+        GLint maxTexture = 0;
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTexture);
+        MaxTextureSize = maxTexture;
+
+        Log::w(TAG,"texture max size %d" , MaxTextureSize);
 
         if(UNITTEST){
             return;
         }
-        
+
 
         calculateDpSize();
         renderEngine_ = std::make_shared<RenderEngine>();

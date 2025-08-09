@@ -93,14 +93,14 @@ int DecodeGifFile(std::string path,
             while ((ret = avcodec_receive_frame(codecContext, frame)) >= 0) {
                 auto ptsTime = av_q2d(stream->time_base) * frame->pts;
 
-                purple::Log::w(TAG, "decode image size %d,%d #%d pts:%f dts:%d pictype:%c pixformat:%s  lineSize:%d", 
-                    frame->width, frame->height,
-                    frameCount,
-                    ptsTime,
-                    frame->pkt_dts,
-                    av_get_picture_type_char(frame->pict_type),
-                    av_get_pix_fmt_name((AVPixelFormat)frame->format),
-                    frame->linesize[0]);
+                // purple::Log::w(TAG, "decode image size %d,%d #%d pts:%f dts:%d pictype:%c pixformat:%s  lineSize:%d", 
+                //     frame->width, frame->height,
+                //     frameCount,
+                //     ptsTime,
+                //     frame->pkt_dts,
+                //     av_get_picture_type_char(frame->pict_type),
+                //     av_get_pix_fmt_name((AVPixelFormat)frame->format),
+                //     frame->linesize[0]);
                 
                 width = frame->width;
                 height = frame->height;
