@@ -74,16 +74,30 @@ void MainView::trySkipNextFrame(){
         }
     }else{
         const float curPtsF = appContext->frameList[curFrameIndex]->pts;
-        long long curPts = curPtsF * 1000;
-
-        const float nextPtsF = appContext->frameList[curFrameIndex + 1]->pts;
-        long long nextPts = nextPtsF * 1000;
+        long long curPts = curPtsF * 1000L;
         
-        curFramePlayTime += deltaTime;
-        if(curFramePlayTime > nextPts - curPts){
+        const float nextPtsF = appContext->frameList[curFrameIndex + 1]->pts;
+        long long nextPts = nextPtsF * 1000L;
+
+        const long long nextFrameWaitTime = nextPts - curPts;
+        
+        if(curFramePlayTime + deltaTime >= nextFrameWaitTime){
+            // curFramePlayTime = deltaTime/2;
+            curFramePlayTime = curFramePlayTime + deltaTime - nextFrameWaitTime;
             updateCurrentFrame(curFrameIndex + 1);
-            curFramePlayTime = 0;
+        }else{
+            curFramePlayTime += deltaTime;
         }
+
+        // curFramePlayTime += deltaTime;
+        // // purple::Log::w("update_frame","curFramePlayTime: %ld   nextPts - curPts : %ld deltaTime : %ld",  
+        // //     curFramePlayTime , nextPts - curPts, deltaTime);
+        // if(curFramePlayTime > nextPts - curPts){
+        //     updateCurrentFrame(curFrameIndex + 1);
+        //     curFramePlayTime = deltaTime;
+        // }
+
+        // updateCurrentFrame(curFrameIndex + 1);
     }
 }
 
