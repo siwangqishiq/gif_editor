@@ -88,8 +88,10 @@ class FilePickerActivity : AppCompatActivity() {
                 MediaStore.Video.Media.DATE_ADDED
             )
             val sortOrder = "${MediaStore.Video.Media.DATE_ADDED} DESC"
-            contentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,projection,null,
-                null,sortOrder)?.use { cursor ->
+            contentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,projection,
+                "${MediaStore.Video.Media.DURATION } > ?",
+                arrayOf<String>("1000"),
+                sortOrder)?.use { cursor ->
                     val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID)
                     val nameColumns = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)
                     val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)

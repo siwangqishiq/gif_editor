@@ -202,7 +202,7 @@ void Application::init(){
 void Application::tick(){
     // std::cout << " begin tick" << std::endl;
     purple::Engine::tick();
-
+    
     for(auto &app : appInstanceList){
         app->onTick();
     }//end for each

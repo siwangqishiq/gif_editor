@@ -8,12 +8,13 @@
 #include "gif_editor_app.h"
 
 void AndroidApplication::init(){
-    purple::InitParams params;
-    params.clearColor = glm::vec4(0.0f , 0.0f ,0.0f , 1.0f);
-    purple::Engine::init(width , height , params);
+    purple::InitParams purpleEngineParams;
+    purpleEngineParams.clearColor = glm::vec4(0.0f , 0.0f ,0.0f , 1.0f);
+    purple::Engine::init(width , height , purpleEngineParams);
+    purple::Engine::getRenderEngine()->getTextRender()->loadFontRes("youyuan","text/youyuan.ttf",true);
 
     std::vector<std::string> filePaths;
-    appInstanceList.push_back(std::make_shared<GifEditorApp>(filePaths));
+    appInstanceList.push_back(std::make_shared<GifEditorApp>(params));
 
     for(std::shared_ptr<purple::IApp> &app : appInstanceList){
         app->onInit();
@@ -69,7 +70,7 @@ void AndroidApplication::onTouchEvent(int action , float x , float y){
     purple::InputEvent event;
     event.action = inputAction;
     event.x = x;
-    event.y = purple::Engine::ScreenHeight - y;
+    event.y = static_cast<float>(purple::Engine::ScreenHeight) - y;
 
     purple::InputManager::getInstance()->onEvent(event);
 }

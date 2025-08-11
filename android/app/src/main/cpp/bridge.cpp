@@ -25,8 +25,18 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved){
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_panyi_xyz_gifeditor_NativeBridge_init(JNIEnv *env, jclass clazz) {
+Java_panyi_xyz_gifeditor_NativeBridge_init(JNIEnv *env, jclass clazz, jstring path) {
     app = std::make_shared<AndroidApplication>();
+
+    if(path){
+        const char *chars = env->GetStringUTFChars(path, nullptr);
+        std::string filePath(chars);
+        env->ReleaseStringUTFChars(path, chars);
+        app->params.clear();
+        app->params.emplace_back("android_app");
+        app->params.emplace_back(filePath);
+    }
+
     if(haveGetSize){
         app->init();
     }
@@ -83,3 +93,4 @@ Java_panyi_xyz_gifeditor_NativeBridge_ffmpegVersion(JNIEnv *env, jclass clazz) {
              (version >> 16) & 0xFF, (version >> 8) & 0xFF, version & 0xFF);
     return env->NewStringUTF(info);
 }
+

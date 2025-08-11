@@ -13,7 +13,7 @@ public final class NativeBridge {
         System.loadLibrary("purple");
     }
 
-    public static native void init();
+    public static native void init(String path);
 
     public static native void tick();
 

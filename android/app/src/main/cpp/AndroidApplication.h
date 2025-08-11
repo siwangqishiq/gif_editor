@@ -4,6 +4,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 
@@ -17,6 +18,7 @@ public:
     void resize(int w , int h);
     void onTouchEvent(int action , float x , float y);
 
+    std::vector<std::string> params;
 private:
     std::vector<std::shared_ptr<purple::IApp>> appInstanceList;
 

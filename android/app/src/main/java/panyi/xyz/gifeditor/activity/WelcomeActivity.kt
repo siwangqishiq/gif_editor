@@ -3,6 +3,7 @@ package panyi.xyz.gifeditor.activity
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -11,13 +12,15 @@ import androidx.appcompat.app.AppCompatActivity
 import panyi.xyz.gifeditor.R
 import panyi.xyz.gifeditor.NativeBridge
 import panyi.xyz.gifeditor.data.PICKER_TYPE_VIDEO
-import xyz.panyi.fullstackeditor.data.REQUEST_CODE_PICK_VIDEO
-import xyz.panyi.fullstackeditor.data.REQUEST_PERMISSION_READ_VIDEOS
+import panyi.xyz.gifeditor.data.REQUEST_CODE_PICK_VIDEO
+import panyi.xyz.gifeditor.data.REQUEST_PERMISSION_READ_VIDEOS
+import panyi.xyz.gifeditor.util.FileUtil
 import xyz.panyi.textrender.util.Log
+import java.net.URI
 
 class WelcomeActivity : AppCompatActivity() {
     companion object{
-        const val TAG = "MainActivity"
+        const val TAG = "WelcomeActivity"
     }
     
     private lateinit var versionText: TextView
@@ -39,14 +42,18 @@ class WelcomeActivity : AppCompatActivity() {
     
     private fun selectVideoFile(){
         Log.i(TAG, "selectVideoFile")
-        if(checkSelfPermission(Manifest.permission.READ_MEDIA_VIDEO) == PackageManager.PERMISSION_GRANTED){
+        
+        var reqPerm :String? = null
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            reqPerm = Manifest.permission.READ_MEDIA_VIDEO
+        }else{
+            reqPerm = Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+        
+        if(checkSelfPermission(reqPerm) == PackageManager.PERMISSION_GRANTED){
             FilePickerActivity.start(this, PICKER_TYPE_VIDEO, REQUEST_CODE_PICK_VIDEO)
         }else{
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                requestPermissions(arrayOf(Manifest.permission.READ_MEDIA_VIDEO), REQUEST_PERMISSION_READ_VIDEOS)
-            }else{
-                requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_PERMISSION_READ_VIDEOS)
-            }
+            requestPermissions(arrayOf(reqPerm), REQUEST_PERMISSION_READ_VIDEOS)
         }
     }
     
@@ -55,7 +62,7 @@ class WelcomeActivity : AppCompatActivity() {
         
         if(requestCode == REQUEST_PERMISSION_READ_VIDEOS){
             if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-//                FilePickerActivity.start(this, PICKER_TYPE_VIDEO, REQUEST_CODE_PICK_VIDEO)
+                FilePickerActivity.start(this, PICKER_TYPE_VIDEO, REQUEST_CODE_PICK_VIDEO)
             }
         }
     }
@@ -63,16 +70,18 @@ class WelcomeActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CODE_PICK_VIDEO && resultCode == RESULT_OK) {
-//            val selectedVideos = data?.getParcelableArrayExtra(FilePickerActivity.RESULT_SELECTED_FILES)
-//                ?.filterIsInstance<Uri>()
-//                ?.toList() ?: emptyList()
-//
-//            // 处理选择的视频
-//            if(selectedVideos.isNotEmpty()){
-//                Log.i(TAG, "select video file: ${selectedVideos[0]}")
-//            }else{
-//                Log.e(TAG, "selectedVideos is Empty!")
-//            }
+            val selectedVideos = data?.getParcelableArrayExtra(FilePickerActivity.RESULT_SELECTED_FILES)
+                ?.filterIsInstance<Uri>()
+                ?.toList() ?: emptyList()
+            // 处理选择的视频
+            if(selectedVideos.isNotEmpty()){
+                Log.i(TAG, "select video file: ${selectedVideos[0]}")
+                val filepath = FileUtil.convertUriToPath(this, selectedVideos[0])
+                Log.i(TAG, "select video file path: $filepath")
+                MainActivity.start(this, filepath)
+            }else{
+                Log.e(TAG, "selectedVideos is Empty!")
+            }
             
         }
         

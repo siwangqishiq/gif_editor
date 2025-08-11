@@ -1,5 +1,4 @@
-package xyz.panyi.fullstackeditor.data
-
+package panyi.xyz.gifeditor.data
 
 const val REQUEST_PERMISSION_READ_VIDEOS = 20
 
