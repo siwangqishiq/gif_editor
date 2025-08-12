@@ -11,9 +11,10 @@ public:
     virtual void init(GifEditorApp *appContext_) = 0;
 
     virtual purple::Rect getHitRect() override;
+
+    purple::Rect viewRect;
 protected:
     GifEditorApp *appContext;
-    purple::Rect viewRect;
 };
 
 

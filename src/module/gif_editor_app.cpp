@@ -5,6 +5,8 @@
 #include "input_action.h"
 #include "decode.h"
 #include "glheader.h"
+#include "save_button.h"
+#include "widget_toast.h"
 
 // const char *FILE_PATH = "../assets/sharongzi.gif";
 const char *FILE_PATH = "../assets/gakki.gif";
@@ -34,7 +36,7 @@ void GifEditorApp::onInit(){
         return;
     }
 
-    threadPool = std::make_unique<purple::ThreadPool>(1);
+    // threadPool = std::make_unique<purple::ThreadPool>(1);
 
     // threadPool->enqueue([this](){
     //     decodeGifFile(filePath.c_str());
@@ -45,8 +47,22 @@ void GifEditorApp::onInit(){
     // });
 
     decodeGifFile(filePath.c_str());
-    mMainView.init(this);
-    mTimeline.init(this);
+
+    if(saveButton == nullptr){
+        saveButton = std::make_shared<SaveButton>();
+    }
+    saveButton->init(this);
+
+    if(mMainView == nullptr){
+        mMainView = std::make_shared<MainView>();
+    }
+    
+    if(mTimeline == nullptr){
+        mTimeline = std::make_shared<TimeLine>();
+    }
+
+    mMainView->init(this);
+    mTimeline->init(this);
 
     purple::InputManager::getInstance()->removeEventListener(GIF_EDITOR_INPUT);
     purple::InputManager::getInstance()->addEventListener(GIF_EDITOR_INPUT,[this](purple::InputEvent e){
@@ -54,9 +70,12 @@ void GifEditorApp::onInit(){
         handleInputAction(e);
         return true;
     });
+    
+    registerInputWidget(static_cast<InputAction *>(mMainView.get())); 
+    registerInputWidget(static_cast<InputAction *>(mTimeline.get())); 
+    registerInputWidget(static_cast<InputAction *>(saveButton.get()));
 
-    registerInputWidget(static_cast<InputAction *>(&mMainView)); 
-    registerInputWidget(static_cast<InputAction *>(&mTimeline)); 
+    purple::Log::w(TAG, "inputWidgets count:%d", inputWidgets.size());
 }
 
 int GifEditorApp::decodeGifFile(const char* filepath){
@@ -94,12 +113,10 @@ void GifEditorApp::registerInputWidget(InputAction *widget){
 }
 
 void GifEditorApp::unRegisterInputWidget(InputAction *widget){
-    for(auto it = inputWidgets.begin() ; it != inputWidgets.end(); it++){
-        if(*it == widget){
-            inputWidgets.erase(it);
-            break;
-        }
-    }//end for each
+    auto it = std::find(inputWidgets.begin(), inputWidgets.end(), widget);
+    if (it != inputWidgets.end()) {
+        inputWidgets.erase(it);
+    }
 }
 
 void GifEditorApp::handleInputAction(purple::InputEvent &e){
@@ -111,12 +128,13 @@ void GifEditorApp::handleInputAction(purple::InputEvent &e){
         }
     }
 
-    for(auto &widget : inputWidgets){
+    for(auto it = inputWidgets.rbegin(); it != inputWidgets.rend();++it){
+        auto widget = *it;
         if(widget->onTouchEvent(e)){
             catchedInputWidget = widget;
             break;
         }
-    }//end for each;
+    }//end for 
 }
 
 long long GifEditorApp::getLastFrameDeltaTime(){
@@ -131,15 +149,36 @@ void GifEditorApp::onResize(int w , int h){
 }
 
 void GifEditorApp::onTick(){
-    mMainView.tick();
-    mTimeline.tick();
+    mMainView->tick();
+    mTimeline->tick();
+
+    if(saveButton != nullptr){
+        saveButton->tick();
+    }
+
+    if(toastWidget != nullptr){
+        toastWidget->render();
+    }
 
     timeMs = purple::currentTimeMillis();
 }
 
+void GifEditorApp::showToast(std::wstring content, long showTimeMils){
+    if(toastWidget != nullptr && toastScheduleId != -1){
+        purple::Engine::getTimer()->removeScheduleTask(toastScheduleId);
+    }
+
+    toastWidget = std::make_shared<Toast>(content);
+    toastScheduleId = purple::Engine::getTimer()->schedule([this](void *){
+        toastWidget = nullptr;
+    }, static_cast<long long>(showTimeMils));
+}
+
 void GifEditorApp::onDispose(){
+    if(threadPool != nullptr){
+        threadPool->shutdown();
+    }
     purple::InputManager::getInstance()->removeEventListener(GIF_EDITOR_INPUT);
     purple::Log::i("GifEditorApp","TestTextUi::onDispose");
-    threadPool->shutdown();
 }
 

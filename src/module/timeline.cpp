@@ -175,7 +175,7 @@ void TimeLine::renderTimelineFrames(){
     }
 
     if(widgetState == Idle){
-        timelineWidgetLeft = viewRect.width / 2 - findTimelineTexOffset(appContext->mMainView.getCurrentFrame());
+        timelineWidgetLeft = viewRect.width / 2 - findTimelineTexOffset(appContext->mMainView->getCurrentFrame());
         updateTimelineRect();
     }else{
         timelineWidgetLeft = timelineRect.left;
@@ -233,7 +233,7 @@ void TimeLine::renderTimeStr(){
     auto textRect = bottomTimeRect;
     textRect.top -= 8;
 
-    uint32_t currentFrame = appContext->mMainView.getCurrentFrame();
+    uint32_t currentFrame = appContext->mMainView->getCurrentFrame();
     
     if(currentFrame >= 0 && currentFrame < appContext->frameList.size()){
         float pts = appContext->frameList[currentFrame]->pts;
@@ -287,8 +287,8 @@ bool TimeLine::onTouchEvent(purple::InputEvent &e) {
 void TimeLine::onTimelineScrollBegin(float x, float y){
     purple::Log::i("timeline", "onTimelineScrollBegin");
     
-    if(appContext->mMainView.state != MainViewState::Pause){
-        appContext->mMainView.updateNewState(MainViewState::Pause);
+    if(appContext->mMainView->state != MainViewState::Pause){
+        appContext->mMainView->updateNewState(MainViewState::Pause);
     }
 
     scrollBeginX = x;
@@ -311,7 +311,7 @@ void TimeLine::onTimelineScrollMove(float x, float y){
 
     uint32_t setFrameIndex = findFrameIndexByTimelineOffset(viewRect.center().x - timelineRect.left);
     // purple::Log::i("timeline", "onTimelineScrollMove setFrameIndex = %d" , setFrameIndex);
-    appContext->mMainView.updateCurrentFrame(setFrameIndex);
+    appContext->mMainView->updateCurrentFrame(setFrameIndex);
 }
 
 void TimeLine::onTimelineScrollEnd(float x, float y){

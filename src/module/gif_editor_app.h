@@ -12,6 +12,8 @@ struct ImageFrameData{
 };
 
 class InputAction;
+class SaveButton;
+class Toast;
 
 class GifEditorApp : public purple::IApp{
 public:
@@ -33,11 +35,17 @@ public:
 
     long long getLastFrameDeltaTime();
 
+    void showToast(std::wstring content, long showTimeMils);
+
     std::string filePath;
 
-    MainView mMainView;
-    TimeLine mTimeline;
+    std::shared_ptr<MainView> mMainView = nullptr;
+    std::shared_ptr<TimeLine> mTimeline = nullptr;
+    std::shared_ptr<SaveButton> saveButton = nullptr;
     
+    std::shared_ptr<Toast> toastWidget = nullptr;
+    int toastScheduleId = -1;
+
     std::unique_ptr<purple::ThreadPool> threadPool;
 private:
     long long timeMs = -1;

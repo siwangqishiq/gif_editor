@@ -2,17 +2,21 @@
 #include "main_view.h"
 #include "app_util.h"
 #include "purple.h"
+#include "save_button.h"
+#include "input_action.h"
 
 MainView::MainView(){
 }
 
 void MainView::init(GifEditorApp *appContext_){
     appContext = appContext_;
+
+    purple::Log::w("MainView","MainView init.");
     resetViewRect();
     updateNewState(Pause);
 
     this->setOnClickListener([this](){
-        purple::Log::i("MainView", "on clicked");
+        purple::Log::i("MainView", "MainView on clicked");
         onClickPlayButton();
     });
 }
@@ -120,11 +124,13 @@ void MainView::updateNewState(MainViewState newState){
 
 void MainView::resetViewRect(){
     viewRect.left = 0.0f;
-    viewRect.top = purple::Engine::ScreenHeight;
+    viewRect.top = appContext->saveButton->viewRect.getBottom();
     viewRect.width = purple::Engine::ScreenWidth;
     viewRect.height = purple::Engine::ScreenHeight / 2.0f;
     
-    purple::Log::w("MainView" , "size %f, %f", viewRect.width , viewRect.height);
+    purple::Log::w("MainView" , "pos %f,%f  size %f, %f",
+            viewRect.left, viewRect.top,
+            viewRect.width , viewRect.height);
 }
 
 MainView::~MainView(){
