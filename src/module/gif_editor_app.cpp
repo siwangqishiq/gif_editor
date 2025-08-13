@@ -7,6 +7,7 @@
 #include "glheader.h"
 #include "save_button.h"
 #include "widget_toast.h"
+#include "widget_loading.h"
 
 // const char *FILE_PATH = "../assets/sharongzi.gif";
 const char *FILE_PATH = "../assets/gakki.gif";
@@ -36,17 +37,17 @@ void GifEditorApp::onInit(){
         return;
     }
 
-    // threadPool = std::make_unique<purple::ThreadPool>(1);
+    threadPool = std::make_unique<purple::ThreadPool>(1);
 
-    // threadPool->enqueue([this](){
-    //     decodeGifFile(filePath.c_str());
-    //     purple::Engine::getTimer()->schedule([this](void *p){
-    //         mMainView.init(this);
-    //         mTimeline.init(this);
-    //     },0);
-    // });
+    showLoading();
+    threadPool->enqueue([this](){
+        decodeGifFile(filePath.c_str());
+        purple::Engine::getTimer()->schedule([this](void *p){
+            onDecodeFileFinished();
+        },0);
+    });
 
-    decodeGifFile(filePath.c_str());
+    // decodeGifFile(filePath.c_str());
 
     if(saveButton == nullptr){
         saveButton = std::make_shared<SaveButton>();
@@ -84,16 +85,24 @@ int GifEditorApp::decodeGifFile(const char* filepath){
     }
     
     int ret = DecodeGifFile(filePath, [this](uint8_t *data,int w,int h ,double pts){
-        onGetFrameImage(data, w, h, pts);
-        // purple::Engine::getTimer()->schedule([this,data,w,h,pts](void *p){
-        //     onGetFrameImage(data, w, h, pts);
-        // },0);
+        purple::Engine::getTimer()->schedule([this,data,w,h,pts](void *){
+            onGetFrameImage(data, w, h, pts);
+            delete[] data;
+        },0);
     });
 
     if(ret == DECODE_SUCCESS){
         hasDecodeGifImage = true;
     }
     return 0;
+}
+
+void GifEditorApp::onDecodeFileFinished(){
+    purple::Log::i(TAG, "load file decode finished");
+
+    dismissLoading();
+    
+    mTimeline->init(this);
 }
 
 void GifEditorApp::onGetFrameImage(uint8_t *data, int w, int h , double pts){
@@ -156,11 +165,19 @@ void GifEditorApp::onTick(){
         saveButton->tick();
     }
 
+
+    updateUIWidgets();
+    timeMs = purple::currentTimeMillis();
+}
+
+void GifEditorApp::updateUIWidgets(){
+    if(loadingWidget != nullptr){
+        loadingWidget->render();
+    }
+
     if(toastWidget != nullptr){
         toastWidget->render();
     }
-
-    timeMs = purple::currentTimeMillis();
 }
 
 void GifEditorApp::showToast(std::wstring content, long showTimeMils){
@@ -172,6 +189,14 @@ void GifEditorApp::showToast(std::wstring content, long showTimeMils){
     toastScheduleId = purple::Engine::getTimer()->schedule([this](void *){
         toastWidget = nullptr;
     }, static_cast<long long>(showTimeMils));
+}
+
+void GifEditorApp::showLoading(){
+    loadingWidget = std::make_shared<WidgetLoading>();
+}
+
+void GifEditorApp::dismissLoading(){
+    loadingWidget = nullptr;
 }
 
 void GifEditorApp::onDispose(){

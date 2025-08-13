@@ -10,4 +10,7 @@ public:
 
     inline static glm::vec4 TOAST_TEXT = glm::vec4(1.0f, 1.0f, 1.0f ,1.0f);
     inline static glm::vec4 TOAST_BACKGROUND = glm::vec4(0.0f, 0.0f, 0.0f ,1.0f);
+
+    inline static glm::vec4 WINDOW_BACKGROUND = glm::vec4(0.0f, 0.0f, 0.0f ,0.7f);
+    inline static glm::vec4 LOADING_COLOR = glm::vec4(1.0f, 1.0f, 1.0f ,1.0f);
 };

@@ -14,6 +14,7 @@ struct ImageFrameData{
 class InputAction;
 class SaveButton;
 class Toast;
+class WidgetLoading;
 
 class GifEditorApp : public purple::IApp{
 public:
@@ -35,7 +36,12 @@ public:
 
     long long getLastFrameDeltaTime();
 
+    void onDecodeFileFinished();
+
     void showToast(std::wstring content, long showTimeMils);
+
+    void showLoading();
+    void dismissLoading();
 
     std::string filePath;
 
@@ -44,6 +50,8 @@ public:
     std::shared_ptr<SaveButton> saveButton = nullptr;
     
     std::shared_ptr<Toast> toastWidget = nullptr;
+    std::shared_ptr<WidgetLoading> loadingWidget = nullptr;
+
     int toastScheduleId = -1;
 
     std::unique_ptr<purple::ThreadPool> threadPool;
@@ -55,6 +63,8 @@ private:
     InputAction *catchedInputWidget = nullptr;
 
     std::vector<InputAction *> inputWidgets;
+
+    void updateUIWidgets();
 
     int decodeGifFile(const char* filepath); //decode gif file 
 

@@ -77,8 +77,6 @@ int DecodeGifFile(std::string path,
     uint32_t width = 0;
     uint32_t height = 0;
     
-    uint8_t* dst = nullptr;
-    uint8_t* flipDst = nullptr;
     const unsigned int colorSize = 4;
     SwsContext* swsCtx = nullptr;
 
@@ -105,11 +103,10 @@ int DecodeGifFile(std::string path,
                 width = frame->width;
                 height = frame->height;
                 // int src_stride = frame->linesize[0];
-                
-                if(dst == nullptr){
-                    dst = new uint8_t[width * height * colorSize];
-                }
 
+                uint8_t* dst = new uint8_t[width * height * colorSize];
+                uint8_t* flipDst = nullptr;
+                
                 // if(frame->format == AV_PIX_FMT_YUV420P){
                     
                 // }else{
@@ -140,18 +137,25 @@ int DecodeGifFile(std::string path,
                 memcpy(dst, dstData[0], width * height * colorSize);
 
                 //flip vertial
-                if(flipDst == nullptr){
-                    flipDst = new uint8_t[width * height * colorSize];
-                }
+                flipDst = new uint8_t[width * height * colorSize];
+
                 for(uint32_t y = height; y > 0 ;y--){
                     memcpy(flipDst + (height - y) * width * colorSize, 
                             dst + (y - 1) * width * colorSize, 
                             width * colorSize); 
                 }//end for y
 
+                if(dst != nullptr){
+                    delete[] dst;
+                }
+
                 // onGetFrameImage(flipDst, frame->width, frame->height, ptsTime);
                 if(onGetFrameImageFunc != nullptr){
                     onGetFrameImageFunc(flipDst, frame->width, frame->height, ptsTime);
+                }else{
+                    if(flipDst != nullptr){
+                        delete[] flipDst;
+                    }
                 }
 
                 frameCount++;
@@ -169,14 +173,6 @@ int DecodeGifFile(std::string path,
 
         av_packet_unref(packet);
     }//end while
-
-    if(flipDst != nullptr){
-        delete[] flipDst;
-    }
-    
-    if(dst != nullptr){
-        delete[] dst;
-    }
 
     av_frame_free(&frame);
     av_packet_free(&packet);

@@ -20,7 +20,14 @@ void SaveButton::init(GifEditorApp *appContext_) {
 
 void SaveButton::onClick(){
     purple::Log::i("SaveButton" , "Save Button Clicked!");
-    appContext->showToast(L"保存文件", 3000);
+    // appContext->showToast(L"保存文件", 3000);
+
+    if(appContext->loadingWidget != nullptr){
+        appContext->dismissLoading();
+    }else{
+        appContext->showLoading();
+    }
+    
 }
 
 void SaveButton::tick(){

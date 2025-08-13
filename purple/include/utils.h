@@ -9,6 +9,8 @@
 
 
 namespace purple{
+
+    constexpr double PI = 3.14159265358979323846;
     
     std::string date_time(std::time_t posix);
 
@@ -31,6 +33,10 @@ namespace purple{
     int RndInt(int max, int min);
 
     float RndFloat(float max , float min);
+
+    float Min(float v1, float v2);
+
+    float Max(float v1, float v2);
 }
 
 

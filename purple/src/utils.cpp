@@ -92,4 +92,12 @@ namespace purple{
     float RndFloat(float min , float max){
         return RandomUtil::randomFloat(min, max);
     }
+
+    float Min(float v1, float v2){
+        return v1 >= v2?v2 : v1;
+    }
+
+    float Max(float v1, float v2){
+        return v1 >= v2?v1 : v2;
+    }
 }
