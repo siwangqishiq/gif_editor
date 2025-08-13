@@ -13,6 +13,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.database.getStringOrNull
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -41,7 +42,7 @@ class FilePickerActivity : AppCompatActivity() {
     private lateinit var listView:RecyclerView
     private lateinit var confirmButton: Button
     private val videoList = mutableListOf<VideoItem>()
-    private val selectedItems = mutableListOf<Uri>()
+    private val selectedItems = mutableListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +86,8 @@ class FilePickerActivity : AppCompatActivity() {
                 MediaStore.Video.Media.DISPLAY_NAME,
                 MediaStore.Video.Media.DURATION,
                 MediaStore.Video.Media.SIZE,
-                MediaStore.Video.Media.DATE_ADDED
+                MediaStore.Video.Media.DATE_ADDED,
+                MediaStore.Video.Media.DATA
             )
             val sortOrder = "${MediaStore.Video.Media.DATE_ADDED} DESC"
             contentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,projection,
@@ -96,16 +98,18 @@ class FilePickerActivity : AppCompatActivity() {
                     val nameColumns = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)
                     val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION)
                     val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE)
+                    val pathColumn = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA)
                     while (cursor.moveToNext()) {
                          val id =  cursor.getLong(idColumn)
                          val name = cursor.getString(nameColumns)
                          val duration = cursor.getLong(durationColumn)
                          val size = cursor.getLong(sizeColumn)
+                        val path = cursor.getStringOrNull(pathColumn)
                          val contentUri = ContentUris.withAppendedId(
                              MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                              id
                          )
-                         videoList.add(VideoItem(contentUri, name, duration, size))
+                         videoList.add(VideoItem(contentUri, name, duration, size, path?:""))
                     }
             }
             runOnUiThread{
@@ -136,7 +140,8 @@ class FilePickerActivity : AppCompatActivity() {
         val uri: Uri,
         val name: String,
         val duration: Long,
-        val size: Long
+        val size: Long,
+        val path:String
     )
 
     // 视频列表适配器
@@ -174,21 +179,21 @@ class FilePickerActivity : AppCompatActivity() {
                 durationText.text = String.format("%02d:%02d", minutes, seconds)
 
                 // 选中状态
-                val isSelected = selectedItems.contains(item.uri)
+                val isSelected = selectedItems.contains(item.path)
                 selectedOverlay.visibility = if (isSelected) View.VISIBLE else View.GONE
 
                 // 点击事件
                 itemView.setOnClickListener {
                     if (params?.maxSelectCount == 1) {
                         selectedItems.clear()
-                        selectedItems.add(item.uri)
+                        selectedItems.add(item.path)
                         finish()
                     } else {
-                        if (selectedItems.contains(item.uri)) {
-                            selectedItems.remove(item.uri)
+                        if (selectedItems.contains(item.path)) {
+                            selectedItems.remove(item.path)
                         } else {
                             if (selectedItems.size < (params?.maxSelectCount ?: 1)) {
-                                selectedItems.add(item.uri)
+                                selectedItems.add(item.path)
                             }
                         }
                         notifyItemChanged(adapterPosition)

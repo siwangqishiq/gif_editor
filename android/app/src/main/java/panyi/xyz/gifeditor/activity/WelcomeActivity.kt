@@ -70,13 +70,14 @@ class WelcomeActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CODE_PICK_VIDEO && resultCode == RESULT_OK) {
-            val selectedVideos = data?.getParcelableArrayExtra(FilePickerActivity.RESULT_SELECTED_FILES)
-                ?.filterIsInstance<Uri>()
+            val selectedVideos = data?.getStringArrayExtra(FilePickerActivity.RESULT_SELECTED_FILES)
+                ?.filterIsInstance<String>()
                 ?.toList() ?: emptyList()
             // 处理选择的视频
             if(selectedVideos.isNotEmpty()){
                 Log.i(TAG, "select video file: ${selectedVideos[0]}")
-                val filepath = FileUtil.convertUriToPath(this, selectedVideos[0])
+                val filepath = selectedVideos[0]
+//                val filepath = FileUtil.convertUriToPath(this, selectedVideos[0])
                 Log.i(TAG, "select video file path: $filepath")
                 MainActivity.start(this, filepath)
             }else{
