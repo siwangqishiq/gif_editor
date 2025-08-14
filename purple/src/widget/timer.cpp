@@ -83,11 +83,13 @@ namespace purple{
                 // taskList_.erase(iter);
             }
             
-            const long endTime = static_cast<long>(currentTimeMillis());
-            const long costTime = endTime - startTime;
-            // Log::i("timer", "task cost time : %ld", costTime);
-            if(costTime >= 20){
-                break;
+            if(limitTasksRunTime){
+                const long endTime = static_cast<long>(currentTimeMillis());
+                const long costTime = endTime - startTime;
+                // Log::i("timer", "task cost time : %ld", costTime);
+                if(costTime >= 20){
+                    break;
+                }
             }
             iter++;
         }//end while

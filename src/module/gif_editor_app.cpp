@@ -38,6 +38,7 @@ void GifEditorApp::onInit(){
     }
 
     threadPool = std::make_unique<purple::ThreadPool>(1);
+    // purple::Engine::getTimer()->setLimitTasksRumTime(false);
 
     showLoading();
     threadPool->enqueue([this](){

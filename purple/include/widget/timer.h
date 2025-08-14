@@ -40,6 +40,10 @@ namespace purple{
         void trick();
         
         void clear();
+
+        void setLimitTasksRumTime(bool isLimit){
+            limitTasksRunTime = isLimit;
+        }
     private:
         long long time_;
 
@@ -48,6 +52,7 @@ namespace purple{
         std::list<std::shared_ptr<TimerTask>> taskList_;
 
         int idIndex_;
+        
         int genTaskId(){
             return ++idIndex_;
         }
