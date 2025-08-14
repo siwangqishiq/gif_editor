@@ -65,6 +65,7 @@ namespace purple{
     //step a timestamp
     void Timer::trick(){
         time_ = currentTimeMillis();
+        const long startTime = static_cast<long>(time_);
         
         std::vector<std::list<std::shared_ptr<TimerTask>>::iterator> removeList;
         auto iter = taskList_.begin();
@@ -80,6 +81,13 @@ namespace purple{
                     task->shouldRunTime = currentTimeMillis() + task->delayTime;
                 }
                 // taskList_.erase(iter);
+            }
+            
+            const long endTime = static_cast<long>(currentTimeMillis());
+            const long costTime = endTime - startTime;
+            // Log::i("timer", "task cost time : %ld", costTime);
+            if(costTime >= 20){
+                break;
             }
             iter++;
         }//end while

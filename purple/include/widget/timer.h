@@ -43,6 +43,8 @@ namespace purple{
     private:
         long long time_;
 
+        bool limitTasksRunTime = true;//是否限制任务列表在每一帧的运行时间 默认限制
+
         std::list<std::shared_ptr<TimerTask>> taskList_;
 
         int idIndex_;
